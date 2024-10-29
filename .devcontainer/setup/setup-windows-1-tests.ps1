@@ -38,8 +38,8 @@ function Test-Command {
 
     try {
         $cmdInfo = Get-Command -Name $Command -ErrorAction Stop
-        if ($MinimumVersion) {
-            if ($cmdInfo.Version -and $cmdInfo.Version -lt [Version]$MinimumVersion) {
+        if ($MinimumVersion -and $cmdInfo.Version) {
+            if ($cmdInfo.Version -lt [Version]$MinimumVersion) {
                 Write-Log -Message "$Command version $($cmdInfo.Version) is below minimum required version $MinimumVersion" -Level Warn
                 return $false
             }
@@ -312,11 +312,59 @@ function Test-Installation {
     return $true
 }
 
+function Test-SetupPrerequisites {
+    [CmdletBinding()]
+    param()
+    
+    try {
+        # Validate PowerShell version
+        $minPowerShellVersion = [Version]"5.1"
+        if ($PSVersionTable.PSVersion -lt $minPowerShellVersion) {
+            throw "PowerShell version $($PSVersionTable.PSVersion) is not supported. Minimum required: $minPowerShellVersion"
+        }
+
+        # Validate setup directory structure
+        $setupRoot = $PSScriptRoot
+        $requiredFiles = @(
+            "setup-windows.ps1",
+            "setup-windows-1-tests.ps1",
+            "setup-windows-2-logging.ps1",
+            "setup-windows-3-system.ps1",
+            "setup-windows-4-containers.ps1",
+            "setup-windows-5-project.ps1"
+        )
+
+        foreach ($file in $requiredFiles) {
+            $filePath = Join-Path $setupRoot $file
+            if (-not (Test-Path $filePath)) {
+                throw "Required setup file missing: $file"
+            }
+        }
+
+        # Validate write permissions in setup directory
+        $testFile = Join-Path $setupRoot "write_test.tmp"
+        try {
+            [IO.File]::WriteAllText($testFile, "test")
+            Remove-Item -Path $testFile -Force
+        }
+        catch {
+            throw "Insufficient permissions in setup directory: $_"
+        }
+
+        return $true
+    }
+    catch {
+        Write-Log -Message "Setup prerequisites check failed: $_" -Level Error
+        return $false
+    }
+}
+
 Export-ModuleMember -Function @(
     'Test-Command',
     'Test-AdminPrivileges',
     'Test-ExecutionPolicy',
     'Test-InternetConnection',
     'Test-Prerequisites',
-    'Test-Installation'
+    'Test-Installation',
+    'Test-SetupPrerequisites'
 )

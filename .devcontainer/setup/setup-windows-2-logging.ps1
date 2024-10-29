@@ -24,36 +24,44 @@ function Initialize-Logging {
 
     try {
         if ($script:CONFIG.Logging.Enabled) {
-            $logDir = Join-Path $env:TEMP "devcontainer-toolbox-logs"
+            # Create logs directory in setup folder
+            $logDir = Join-Path $PSScriptRoot "logs"
             if (-not (Test-Path -Path $logDir)) {
-                New-Item -ItemType Directory -Path $logDir -Force -ErrorAction Stop | Out-Null
+                New-Item -ItemType Directory -Path $logDir -Force | Out-Null
             }
 
-            # Set up log file path with timestamp
+            # Set up log file with proper naming
             $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-            $script:CONFIG.Logging.Path = Join-Path $logDir "install-$timestamp.log"
+            $script:CONFIG.Logging.Path = Join-Path $logDir "setup-$timestamp.log"
 
-            # Test write access
-            try {
-                [IO.File]::WriteAllText($script:CONFIG.Logging.Path, "Log initialized at $timestamp`n")
-            }
-            catch {
-                throw "Cannot write to log file: $_"
-            }
+            # Implement log rotation
+            $maxLogFiles = 5
+            Get-ChildItem -Path $logDir -Filter "setup-*.log" | 
+                Sort-Object CreationTime -Descending | 
+                Select-Object -Skip $maxLogFiles | 
+                Remove-Item -Force
 
-            # Register cleanup
-            Register-InstallationStep -StepName "Logging initialization" -RollbackAction {
-                if (Test-Path -Path $script:CONFIG.Logging.Path) {
-                    Remove-Item -Path $script:CONFIG.Logging.Path -Force
-                }
-            }
+            # Initialize log file with header
+            $headerText = @"
+Devcontainer Toolbox Setup Log
+Version: $($script:CONFIG.Version)
+Date: $(Get-Date)
+System: $([System.Environment]::OSVersion.VersionString)
+PowerShell: $($PSVersionTable.PSVersion)
+User: $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)
+-------------------------------------------
+
+"@
+            [IO.File]::WriteAllText($script:CONFIG.Logging.Path, $headerText)
 
             Write-Host "Logging initialized. Log file: $($script:CONFIG.Logging.Path)" -ForegroundColor Green
+            return $true
         }
     }
     catch {
         Write-Warning "Failed to initialize logging: $_"
         $script:CONFIG.Logging.Enabled = $false
+        return $false
     }
 }
 
@@ -76,8 +84,7 @@ function Write-Log {
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true, Position = 0)]
-        [ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory = $true)]
         [string]$Message,
         
         [Parameter(Mandatory = $false)]
@@ -89,46 +96,32 @@ function Write-Log {
     )
     
     try {
-        # Format timestamp
-        $timestamp = Get-Date -Format ($script:CONFIG.Logging.TimestampFormat ?? "yyyy-MM-dd HH:mm:ss")
-        $logMessage = "[$timestamp] $Level`: $Message"
-        
-        # Console output with error handling
-        if (-not $NoConsole) {
-            $color = switch ($Level) {
-                "Error" { "Red" }
-                "Warn"  { "Yellow" }
-                "Debug" { "Gray" }
-                default { "Green" }
-            }
+        # Create thread-safe logging using mutex
+        $mutexName = "Global\DevcontainerToolboxLog"
+        $mutex = New-Object System.Threading.Mutex($false, $mutexName)
+
+        try {
+            [void]$mutex.WaitOne()
             
-            try {
+            $timestamp = Get-Date -Format $script:CONFIG.Logging.TimestampFormat
+            $logMessage = "[$timestamp] $Level`: $Message"
+
+            if ($script:CONFIG.Logging.Enabled -and $script:CONFIG.Logging.Path) {
+                Add-Content -Path $script:CONFIG.Logging.Path -Value $logMessage
+            }
+
+            if (-not $NoConsole) {
+                $color = switch ($Level) {
+                    "Error" { "Red" }
+                    "Warn"  { "Yellow" }
+                    "Debug" { "Gray" }
+                    default { "Green" }
+                }
                 Write-Host $logMessage -ForegroundColor $color
             }
-            catch {
-                Write-Warning "Failed to write to console: $_"
-            }
         }
-        
-        # File output with rotation
-        if ($script:CONFIG.Logging.Enabled -and $script:CONFIG.Logging.Path) {
-            try {
-                # Check file size before writing
-                if (Test-Path -Path $script:CONFIG.Logging.Path) {
-                    $logFile = Get-Item -Path $script:CONFIG.Logging.Path
-                    if ($logFile.Length -gt $script:CONFIG.Logging.MaxSize) {
-                        $backupPath = "$($script:CONFIG.Logging.Path).1"
-                        Move-Item -Path $script:CONFIG.Logging.Path -Destination $backupPath -Force
-                        Initialize-Logging
-                    }
-                }
-
-                Add-Content -Path $script:CONFIG.Logging.Path -Value $logMessage -ErrorAction Stop
-            }
-            catch {
-                Write-Warning "Failed to write to log file: $_"
-                $script:CONFIG.Logging.Enabled = $false
-            }
+        finally {
+            $mutex.ReleaseMutex()
         }
     }
     catch {

@@ -241,11 +241,21 @@ function Install-WSLComponent {
         $feature = Get-WindowsOptionalFeature -Online -FeatureName $ComponentName -ErrorAction Stop
 
         if ($feature.State -ne "Enabled") {
-            $result = Enable-WindowsOptionalFeature -Online -FeatureName $ComponentName -NoRestart -ErrorAction Stop
-            
-            if ($result.RestartNeeded) {
-                $script:CONFIG.RestartNeeded = $true
-                Write-Log -Message "System restart required after enabling $DisplayName" -Level Warn
+            # Add timeout handling for Enable-WindowsOptionalFeature
+            $job = Start-Job -ScriptBlock {
+                param($name)
+                Enable-WindowsOptionalFeature -Online -FeatureName $name -NoRestart
+            } -ArgumentList $ComponentName
+
+            if (Wait-Job $job -Timeout 300) {
+                $result = Receive-Job $job
+                if ($result.RestartNeeded) {
+                    $script:CONFIG.RestartNeeded = $true
+                    Write-Log -Message "System restart required after enabling $DisplayName" -Level Warn
+                }
+            } else {
+                Stop-Job $job
+                throw "Installation of $DisplayName timed out after 300 seconds"
             }
             
             Write-Log -Message "$DisplayName installation completed"
@@ -259,6 +269,9 @@ function Install-WSLComponent {
     catch {
         Write-Log -Message "Failed to install $DisplayName`: $_" -Level Error
         throw
+    }
+    finally {
+        Get-Job | Remove-Job -Force -ErrorAction SilentlyContinue
     }
 }
 

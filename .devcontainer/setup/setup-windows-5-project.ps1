@@ -35,17 +35,30 @@ function Test-ProjectDirectory {
             Write-Log -Message "Created directory: $Path"
         }
 
-        # Test write permissions
+        # Test write permissions with proper cleanup
         $testFile = Join-Path $Path "write_test.tmp"
         try {
             [IO.File]::WriteAllText($testFile, "test")
-            Remove-Item -Path $testFile -Force
-            Write-Log -Message "Write permission test passed"
+            if (-not (Test-Path $testFile)) {
+                throw "Failed to create test file"
+            }
         }
         catch {
             throw "Cannot write to directory: $_"
         }
+        finally {
+            if (Test-Path $testFile) {
+                Remove-Item -Path $testFile -Force -ErrorAction SilentlyContinue
+            }
+        }
 
+        # Verify directory is not system or hidden
+        $dirInfo = Get-Item $Path
+        if ($dirInfo.Attributes -band [System.IO.FileAttributes]::System) {
+            throw "Cannot use system directory"
+        }
+        
+        Write-Log -Message "Project directory validation passed"
         return $true
     }
     catch {

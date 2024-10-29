@@ -100,30 +100,28 @@ function Test-Podman {
         $cancelToken.CancelAfter([TimeSpan]::FromSeconds($timeoutSeconds))
 
         try {
-            # Check Podman version
+            # Check Podman version with timeout
             $job = Start-Job -ScriptBlock { 
                 podman version --format '{{.Client.Version}}' 2>&1 
             }
             
-            $completed = Wait-Job -Job $job -Timeout $timeoutSeconds
-            if (-not $completed) {
-                $cancelToken.Cancel()
+            if (-not (Wait-Job $job -Timeout $timeoutSeconds)) {
+                Stop-Job $job
                 throw "Podman version check timed out after $timeoutSeconds seconds"
             }
 
-            $version = Receive-Job -Job $job -ErrorAction Stop
+            $version = Receive-Job $job -ErrorAction Stop
             if ($LASTEXITCODE -eq 0) {
                 Write-Log -Message "Podman version $version found"
                 
-                # Test Podman machine
+                # Test Podman machine with timeout
                 $machineJob = Start-Job -ScriptBlock { podman machine inspect }
-                $machineCompleted = Wait-Job -Job $machineJob -Timeout $timeoutSeconds
-                
-                if (-not $machineCompleted) {
+                if (-not (Wait-Job $machineJob -Timeout $timeoutSeconds)) {
+                    Stop-Job $machineJob
                     throw "Podman machine check timed out"
                 }
 
-                $machineInfo = Receive-Job -Job $machineJob -ErrorAction Stop
+                $machineInfo = Receive-Job $machineJob -ErrorAction Stop
                 if ($LASTEXITCODE -eq 0) {
                     Write-Log -Message "Podman machine is configured"
                     return $true

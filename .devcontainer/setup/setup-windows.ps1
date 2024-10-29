@@ -64,29 +64,32 @@ function Initialize-SetupEnvironment {
     Initializes the setup environment and validates prerequisites.
     #>
     try {
-        # Validate PowerShell version
-        $minPowerShellVersion = [Version]"5.1"
-        if ($PSVersionTable.PSVersion -lt $minPowerShellVersion) {
-            throw "PowerShell version $($PSVersionTable.PSVersion) is not supported. Minimum required: $minPowerShellVersion"
-        }
-
-        # Create temp directory for web installation
+        # Create a more specific temp directory
         if ($script:CONFIG.RunningFromWeb) {
-            $scriptPath = Join-Path $env:TEMP "devcontainer-toolbox-setup"
+            $scriptPath = Join-Path $env:TEMP "devcontainer-toolbox-setup-$(Get-Date -Format 'yyyyMMddHHmmss')"
             if (Test-Path $scriptPath) {
                 Remove-Item -Path $scriptPath -Recurse -Force
             }
             New-Item -ItemType Directory -Path $scriptPath -Force | Out-Null
-
-            # Register cleanup
-            Register-InstallationStep -StepName "Temp Directory Creation" -RollbackAction {
-                if (Test-Path $scriptPath) {
-                    Remove-Item -Path $scriptPath -Recurse -Force
-                }
-            }
         }
         else {
-            $scriptPath = $PSScriptRoot
+            # Use the actual setup directory path
+            $scriptPath = Join-Path $PSScriptRoot "setup"
+            if (-not (Test-Path $scriptPath)) {
+                throw "Setup directory not found at: $scriptPath"
+            }
+        }
+
+        # Validate setup directory structure
+        $requiredDirs = @(
+            $scriptPath,
+            (Join-Path $scriptPath "logs")
+        )
+
+        foreach ($dir in $requiredDirs) {
+            if (-not (Test-Path $dir)) {
+                New-Item -ItemType Directory -Path $dir -Force | Out-Null
+            }
         }
 
         return $scriptPath
@@ -98,13 +101,6 @@ function Initialize-SetupEnvironment {
 }
 
 function Import-RequiredModules {
-    <#
-    .SYNOPSIS
-    Downloads and imports required setup modules.
-    
-    .PARAMETER ScriptPath
-    The path where modules should be downloaded or found.
-    #>
     param(
         [Parameter(Mandatory = $true)]
         [string]$ScriptPath
@@ -119,35 +115,17 @@ function Import-RequiredModules {
     )
 
     try {
-        # Download modules if running from web
-        if ($script:CONFIG.RunningFromWeb) {
-            foreach ($module in $modules) {
-                $url = "https://raw.githubusercontent.com/terchris/devcontainer-toolbox/main/.devcontainer/setup/$module"
-                $outFile = Join-Path $ScriptPath $module
-
-                try {
-                    $webClient = New-Object System.Net.WebClient
-                    $webClient.Headers.Add("User-Agent", "PowerShell Script")
-                    $webClient.DownloadFile($url, $outFile)
-                }
-                catch {
-                    throw "Failed to download module $module`: $_"
-                }
-            }
-        }
-
-        # Import modules
         foreach ($module in $modules) {
             $modulePath = Join-Path $ScriptPath $module
             if (-not (Test-Path $modulePath)) {
-                throw "Required module not found: $module"
+                throw "Required module not found: $module at $modulePath"
             }
 
             try {
                 . $modulePath
             }
             catch {
-                throw "Failed to import module $module`: $_"
+                throw "Failed to import module $module from $modulePath`: $_"
             }
         }
     }
@@ -218,6 +196,55 @@ function Start-Installation {
             Invoke-Rollback
         }
         return $false
+    }
+}
+
+function Start-ErrorRecovery {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.ErrorRecord]$ErrorRecord
+    )
+
+    try {
+        Write-Log "Starting error recovery..." -Level Warn
+
+        # Create error report
+        $errorReport = @{
+            Timestamp = Get-Date
+            ErrorMessage = $ErrorRecord.Exception.Message
+            ErrorType = $ErrorRecord.Exception.GetType().Name
+            ScriptName = $ErrorRecord.InvocationInfo.ScriptName
+            LineNumber = $ErrorRecord.InvocationInfo.ScriptLineNumber
+            StackTrace = $ErrorRecord.ScriptStackTrace
+            Category = $ErrorRecord.CategoryInfo.Category
+        }
+
+        # Save error report
+        $errorReportPath = Join-Path $PSScriptRoot "logs" "error-report-$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        $errorReport | ConvertTo-Json | Set-Content $errorReportPath
+
+        # Attempt cleanup
+        if ($script:installationSteps.Count -gt 0) {
+            Write-Log "Rolling back installation steps..." -Level Warn
+            
+            while ($script:installationSteps.Count -gt 0) {
+                $step = $script:installationSteps.Pop()
+                try {
+                    Write-Log "Rolling back: $($step.Name)" -Level Warn
+                    & $step.Rollback
+                }
+                catch {
+                    Write-Log "Failed to rollback step '$($step.Name)': $_" -Level Error
+                }
+            }
+        }
+
+        Write-Log "Error recovery completed" -Level Warn
+        return $errorReportPath
+    }
+    catch {
+        Write-Log "Error recovery failed: $_" -Level Error
     }
 }
 
