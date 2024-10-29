@@ -161,6 +161,24 @@ function Get-ProjectDirectory {
     }
 }
 
+# Function to install VS Code
+function Install-VSCode {
+    Log-Message "Installing Visual Studio Code..."
+    $vscodePath = "$env:TEMP\vscode_installer.exe"
+    Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64" -OutFile $vscodePath
+    Start-Process -FilePath $vscodePath -Args "/VERYSILENT /NORESTART /MERGETASKS=!runcode" -Wait
+    Remove-Item $vscodePath
+}
+
+# Function to install Podman Desktop
+function Install-PodmanDesktop {
+    Log-Message "Installing Podman Desktop..."
+    $podmanPath = "$env:TEMP\podman_installer.exe"
+    Invoke-WebRequest -Uri "https://github.com/containers/podman-desktop/releases/latest/download/podman-desktop-setup.exe" -OutFile $podmanPath
+    Start-Process -FilePath $podmanPath -Args "/S" -Wait
+    Remove-Item $podmanPath
+}
+
 # Main installation script
 $ErrorActionPreference = "Stop"
 
@@ -175,7 +193,7 @@ try {
         throw "This script must be run as Administrator!"
     }
 
-    # Check WSL installation status
+    # Check WSL installation
     Update-InstallProgress $stages[1].Name 1
     $wslInstalled = Test-WSLInstallation
     if (-not $wslInstalled) {
@@ -197,8 +215,46 @@ try {
         exit 0
     }
 
-    [Rest of the installation code remains the same, but add Update-InstallProgress calls at each major step]
-    
+    # Install VS Code if not present
+    Update-InstallProgress $stages[2].Name 2
+    if (-not (Test-Command "code")) {
+        Install-VSCode
+    }
+
+    # Install Podman Desktop if not present
+    Update-InstallProgress $stages[3].Name 3
+    if (-not (Test-Command "podman")) {
+        Install-PodmanDesktop
+    }
+
+    # Configure environment
+    Update-InstallProgress $stages[4].Name 4
+    $projectDir = Get-ProjectDirectory
+    $toolboxDir = Join-Path $projectDir "devcontainer-toolbox"
+
+    # Clone repository and set up toolbox
+    Update-InstallProgress $stages[5].Name 5
+    if (Test-Path $toolboxDir) {
+        $replace = Read-Host "Toolbox directory already exists. Replace it? (Y/N)"
+        if ($replace -eq 'Y' -or $replace -eq 'y') {
+            Remove-Item -Path $toolboxDir -Recurse -Force
+        }
+        else {
+            throw "Installation cancelled by user."
+        }
+    }
+
+    Log-Message "Cloning devcontainer-toolbox repository..."
+    git clone https://github.com/terchris/devcontaner-toolbox.git $toolboxDir
+
+    # Test Podman functionality
+    if (-not (Test-PodmanFunctionality)) {
+        Log-Message "Podman installation needs configuration. Please run Podman Desktop and complete the initial setup." -severity "WARN"
+    }
+
+    # Open VS Code with the toolbox
+    Start-Process "code" -ArgumentList $toolboxDir
+
     # Final success message
     Write-Progress -Activity "Installing Devcontainer Toolbox" -Completed
     Write-Host "`n====================================================" -ForegroundColor Green
