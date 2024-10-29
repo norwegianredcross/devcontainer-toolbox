@@ -248,9 +248,19 @@ function Start-ErrorRecovery {
     }
 }
 
+# At the start of the script
+function Write-BasicError {
+    param(
+        [string]$Message
+    )
+    Write-Host "Error: $Message" -ForegroundColor Red
+    Write-Host "Please check the setup requirements and try again." -ForegroundColor Yellow
+}
+
 # Main execution
 try {
     $scriptPath = Initialize-SetupEnvironment
+    # Import modules first
     Import-RequiredModules -ScriptPath $scriptPath
     
     if (-not (Start-Installation)) {
@@ -258,11 +268,11 @@ try {
     }
 }
 catch {
-    if ($script:CONFIG.Logging.Enabled) {
+    if (Get-Command Write-ErrorReport -ErrorAction SilentlyContinue) {
         Write-ErrorReport -ErrorRecord $_
     }
     else {
-        Write-Error $_.Exception.Message
+        Write-BasicError -Message $_.Exception.Message
     }
     exit 1
 }
