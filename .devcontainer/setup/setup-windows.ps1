@@ -31,17 +31,19 @@ $script:toolboxDir = $null
 
 # Progress bar configuration
 $ProgressPreference = 'Continue'
+# Define stages as custom objects to ensure properties are accessible
 $stages = @(
-    @{Name = "Checking prerequisites"; Weight = 5}
-    @{Name = "Installing WSL"; Weight = 15}
-    @{Name = "Installing Container Runtime"; Weight = 25}
-    @{Name = "Installing VS Code"; Weight = 15}
-    @{Name = "Configuring environment"; Weight = 20}
-    @{Name = "Setting up toolbox"; Weight = 20}
+    [PSCustomObject]@{Name = "Checking prerequisites"; Weight = 5}
+    [PSCustomObject]@{Name = "Installing WSL"; Weight = 15}
+    [PSCustomObject]@{Name = "Installing Container Runtime"; Weight = 25}
+    [PSCustomObject]@{Name = "Installing VS Code"; Weight = 15}
+    [PSCustomObject]@{Name = "Configuring environment"; Weight = 20}
+    [PSCustomObject]@{Name = "Setting up toolbox"; Weight = 20}
 )
+
+# Calculate total weight
 $progressTotal = ($stages | Measure-Object -Property Weight -Sum).Sum
 
-# Core utility functions
 function Update-InstallProgress {
     param (
         [string]$Activity,
