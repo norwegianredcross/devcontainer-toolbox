@@ -89,6 +89,8 @@ cd .devcontainer/additions
 
 The script [install-powerscript.sh](./additions/install-powershell.sh) installs sw and extensions for developing with PowerShell.
 
+See howto for tips here [howto-powershell](./howto/howto-powershell.md)
+
 Installs the following modules:
 | Module | Purpose | Description |
 |-----------|---------|-------------|
@@ -108,11 +110,29 @@ Installs the following VS Code extensions:
 
 The script [install-conf-script.sh](./additions/install-conf-script.sh) installs extensions for editing various config files (bicep, ansible etc.).
 
+See howto for tips here [howto-conf-script](./howto/howto-conf-script.md)
+
 Installs the following VS Code extensions:
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
 | [Bicep](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep) | Infrastructure as Code | Bicep authoring and deployment |
 | [Ansible](https://marketplace.visualstudio.com/items?itemName=redhat.ansible) | Configuration Management | Ansible development |
+
+### For Integrating AI into vscode
+
+The script [install-cline-ai.sh](./additions/install-cline-ai.sh) installs Cline (prev. Claude Dev) extension that integrates the [Cline AI](https://www.cline.ai/) into vscode. Enabeling you to use AI to write code, fix bugs, write documentation etc.
+
+See howto for tips here [howto-cline-ai](./howto/howto-cline-ai.md)
+
+Installs the following VS Code extensions:
+| Extension | Purpose | Description |
+|-----------|---------|-------------|
+| [Cline (prev. Claude Dev)](https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev) | AI | Enabeling you to use AI to write code, fix bugs, write documentation etc. |
+
+
+
+
+
 
 ### For Data & Analytics
 

@@ -8,6 +8,18 @@
 #   ./install-powershell.sh --uninstall  # Interactive uninstallation with confirmation
 #   ./install-powershell.sh -y --uninstall # Automatic uninstallation without confirmation
 #
+# How to Add Components:
+#
+# 1. PowerShell Modules:
+#    Add to MODULES array:
+#    MODULES=("Az" "Microsoft.Graph" "PSScriptAnalyzer" "YourNewModule")
+#
+# 2. VS Code Extensions:
+#    Add to EXTENSIONS array using format:
+#    ["extension-id"]="Name|Description|Marketplace URL|"
+#    Example:
+#    ["publisher.extension"]="Extension Name|Description text|https://marketplace.visualstudio.com/items?itemName=publisher.extension|"
+#
 # Components managed:
 # 1. PowerShell Modules:
 #    a. Az PowerShell Module
@@ -36,6 +48,7 @@
 #    c. Azure CLI Tools (ms-vscode.azurecli)
 #       - Azure CLI integration and snippets
 #       - Command completion and syntax highlighting for Azure CLI
+
 
 # Source the extension management script
 source "$(dirname "$0")/install-extensions.sh"

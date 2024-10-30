@@ -1,199 +1,122 @@
 #!/bin/bash
 # file: .devcontainer/additions/install-extensions.sh
-# Description: General script for VS Code extension management
+# Description: This script provides helper functions for installing VS Code extensions
+#
+# Usage:
+#   Source this script from other installation scripts:
+#   source "$(dirname "$0")/install-extensions.sh"
+#
+# Components managed:
+# 1. Extension Downloads:
+#    - Downloads extensions from VS Code Marketplace
+#    - Handles versioning and updates
+#    - Manages HTTP headers and authentication
+#
+# 2. Installation Process:
+#    - Verifies downloads
+#    - Installs extensions using VS Code CLI
+#    - Handles installation verification
+#
+# 3. User Interface:
+#    - Provides status updates and confirmations
+#    - Displays color-coded success/failure messages
+#    - Shows installation progress
+#
+# Dependencies:
+#   - curl: For downloading extensions
+#   - code: VS Code CLI for extension management
+#   - grep, cut: For parsing version information
+#   - Standard Unix tools (rm, test, etc.)
 
-# Set error handling
-set -e
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
 
-# Parse command line arguments
-AUTO_MODE=false
-UNINSTALL_MODE=false
-
-for arg in "$@"; do
-    case $arg in
-        -y)
-            AUTO_MODE=true
-            ;;
-        --uninstall)
-            UNINSTALL_MODE=true
-            ;;
-    esac
-done
-
-# Function to check if an extension is installed
-check_extension() {
-    local extension_id=$1
-    local extension_dir="$HOME/.vscode-server/extensions/${extension_id}"
-    
-    # Check if directory exists and contains required files
-    if [ -d "$extension_dir" ] && \
-       [ -f "$extension_dir/extension.vsixmanifest" ] && \
-       [ -d "$extension_dir/extension" ]; then
-        return 0  # Extension is properly installed
-    else
-        return 1  # Extension is not installed or incomplete
-    fi
-}
-
-# Function to install extension
-install_extension() {
-    local ext_id=$1
-    local name=$2
-    local description=$3
-    local url=$4
-    local headers=$5
-
-    echo "Installing $name..."
-    temp_dir=$(mktemp -d)
-    cd "$temp_dir"
-
-    # Clean up any existing failed installations
-    rm -rf "$HOME/.vscode-server/extensions/${ext_id}"*
-
-    echo "Downloading $name..."
-    if ! curl -L -s \
-        -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
-        -H "Accept: application/octet-stream" \
-        $headers \
-        "$url" --output extension.vsix; then
-        echo "Failed to download $name"
-        return 1
-    fi
-
-    # Verify the download
-    if [ ! -s extension.vsix ]; then
-        echo "Downloaded file is empty"
-        return 1
-    fi
-
-    echo "Extracting $name..."
-    target_dir="$HOME/.vscode-server/extensions/${ext_id}"
-    mkdir -p "$target_dir"
-
-    # Try to extract using 7z first, then fallback to unzip
-    if command -v 7z >/dev/null 2>&1; then
-        if ! 7z x -y extension.vsix -o"$target_dir" > /dev/null 2>&1; then
-            echo "Failed to extract using 7z, trying unzip..."
-            if ! unzip -q -o extension.vsix -d "$target_dir"; then
-                echo "Failed to extract $name"
-                rm -rf "$target_dir"
-                return 1
-            fi
-        fi
-    else
-        if ! unzip -q -o extension.vsix -d "$target_dir"; then
-            echo "Failed to extract $name"
-            rm -rf "$target_dir"
-            return 1
-        fi
-    fi
-
-    rm extension.vsix
-    cd - > /dev/null
-    rm -rf "$temp_dir"
-    echo "Successfully installed $name"
-    return 0
-}
-
-# Function to uninstall extension
-uninstall_extension() {
-    local ext_id=$1
-    local name=$2
-    
-    echo "Uninstalling ${ext_id}..."
-    extension_dirs=$(find "$HOME/.vscode-server/extensions" -maxdepth 1 -type d -name "${ext_id}*" 2>/dev/null)
-    if [ -n "$extension_dirs" ]; then
-        if ! rm -rf $extension_dirs; then
-            echo "Failed to remove $name"
-            return 1
-        else
-            echo "Successfully removed $name"
-            return 0
-        fi
-    else
-        echo "No installation found for $name"
-        return 0
-    fi
-}
-
-# Function to verify installations
-verify_installations() {
-    local -n extensions=$1
-    echo "Verifying installations..."
-    for ext_id in "${!extensions[@]}"; do
-        IFS='|' read -r name description url headers <<< "${extensions[$ext_id]}"
-        if check_extension "$ext_id"; then
-            echo "✓ $name is installed"
-        else
-            echo "✗ $name is not installed"
-        fi
-    done
-}
-
-# Function to display header
 display_header() {
-    local title=$1
-    echo "=== $title ==="
-    if [ "$UNINSTALL_MODE" = true ]; then
-        echo "Operation: Uninstall extensions"
-    else
-        echo "Operation: Install extensions"
-    fi
+    echo "=== $1 ==="
+    echo "Operation: Install extensions"
     echo "=========================================="
-    echo
 }
 
-# Function to get extensions that need processing
-get_extensions_to_process() {
-    local -n extensions=$1
-    local -n process_array=$2
+fetch_latest_extension_version() {
+    local url=$1
+    local response
+    response=$(curl -s \
+        -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+        -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" \
+        "$url")
+    echo "$response" | grep -o '"version":"[^"]*' | head -1 | cut -d'"' -f4
+}
+
+download_extension() {
+    local extension_id=$1
+    local marketplace_url=$2
+    local version
     
-    for ext_id in "${!extensions[@]}"; do
-        IFS='|' read -r name description url headers <<< "${extensions[$ext_id]}"
-        if [ "$UNINSTALL_MODE" = true ]; then
-            if check_extension "$ext_id"; then
-                process_array+=("$ext_id")
-            fi
-        else
-            if ! check_extension "$ext_id"; then
-                process_array+=("$ext_id")
-            fi
+    version=$(fetch_latest_extension_version "$marketplace_url")
+    if [ -z "$version" ]; then
+        echo "Failed to fetch version"
+        return 1
+    fi
+    
+    echo "Found version: $version"
+    
+    local publisher="${extension_id%%.*}"
+    local extension="${extension_id#*.}"
+    local download_url="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${publisher}/vsextensions/${extension}/${version}/vspackage"
+    
+    echo "Downloading $extension_id..."
+    if ! curl -s -L \
+         -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+         -H "Accept: application/octet-stream;api-version=7.1-preview.1" \
+         -H "Connection: keep-alive" \
+         -H "X-Market-User-Id: 7b22686f737450617468223a222f686f6d652f766963746f722f636f6465227d" \
+         --compressed \
+         -o "extension.vsix" \
+         "$download_url"; then
+        echo "Download failed"
+        return 1
+    fi
+
+    if [ ! -f "extension.vsix" ] || [ ! -s "extension.vsix" ]; then
+        echo "Downloaded file is empty or missing"
+        return 1
+    fi
+    
+    echo "Installing extension directly..."
+    if code --install-extension "extension.vsix"; then
+        rm -f extension.vsix
+        return 0
+    else
+        rm -f extension.vsix
+        return 1
+    fi
+}
+
+get_extensions_to_process() {
+    local -n extensions_ref=$1
+    local -n extensions_to_process_ref=$2
+    
+    for ext_id in "${!extensions_ref[@]}"; do
+        if ! code --list-extensions | grep -q "^${ext_id}$"; then
+            extensions_to_process_ref+=("$ext_id")
         fi
     done
 }
 
-# Function to display extensions status
 display_extensions_status() {
-    local -n extensions=$1
-    local -n process_array=$2
-
-    if [ ${#process_array[@]} -eq 0 ]; then
-        if [ "$UNINSTALL_MODE" = true ]; then
-            echo "Status: No extensions were found to uninstall."
-        else
-            echo "Status: All extensions are already installed."
-        fi
-        echo "Current extension status:"
-        for ext_id in "${!extensions[@]}"; do
-            IFS='|' read -r name description url headers <<< "${extensions[$ext_id]}"
-            if check_extension "$ext_id"; then
-                echo "- $name (installed)"
-            else
-                echo "- $name (not installed)"
-            fi
-        done
+    local -n extensions_ref=$1
+    local -n extensions_to_process_ref=$2
+    
+    if [ ${#extensions_to_process_ref[@]} -eq 0 ]; then
+        echo "All extensions are already installed."
         return 1
     fi
-
-    if [ "$UNINSTALL_MODE" = true ]; then
-        echo "The following extensions will be uninstalled:"
-    else
-        echo "The following extensions will be installed:"
-    fi
+    
+    echo "The following extensions will be installed:"
     echo
-
-    for ext_id in "${process_array[@]}"; do
-        IFS='|' read -r name description url headers <<< "${extensions[$ext_id]}"
+    for ext_id in "${extensions_to_process_ref[@]}"; do
+        IFS='|' read -r name description url headers <<< "${extensions_ref[$ext_id]}"
         echo "- $name"
         echo "  $description"
     done
@@ -201,66 +124,61 @@ display_extensions_status() {
     return 0
 }
 
-# Function to get user confirmation
 get_user_confirmation() {
-    if [ "$AUTO_MODE" = false ]; then
-        if [ "$UNINSTALL_MODE" = true ]; then
-            read -p "Do you want to proceed with the uninstallation? (y/N) " -n 1 -r
-        else
-            read -p "Do you want to proceed with the installation? (y/N) " -n 1 -r
-        fi
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Operation cancelled."
+    read -p "Do you want to proceed with the installation? (y/N) " response
+    case "$response" in
+        [yY][eE][sS]|[yY]) 
+            return 0
+            ;;
+        *)
             return 1
-        fi
-    fi
-    return 0
+            ;;
+    esac
 }
 
-# Function to process extensions
 process_extensions() {
-    local -n extensions=$1
-    local -n process_array=$2
-    local -n failed_array=$3
-
-    for ext_id in "${process_array[@]}"; do
-        IFS='|' read -r name description url headers <<< "${extensions[$ext_id]}"
-        if [ "$UNINSTALL_MODE" = true ]; then
-            if ! uninstall_extension "$ext_id" "$name"; then
-                failed_array+=("$ext_id")
-            fi
-        else
-            if ! install_extension "$ext_id" "$name" "$description" "$url" "$headers"; then
-                failed_array+=("$ext_id")
-            fi
+    local -n extensions_ref=$1
+    local -n extensions_to_process_ref=$2
+    local -n failed_extensions_ref=$3
+    
+    for ext_id in "${extensions_to_process_ref[@]}"; do
+        IFS='|' read -r name description url headers <<< "${extensions_ref[$ext_id]}"
+        echo "Installing $name..."
+        
+        if ! download_extension "$ext_id" "$url"; then
+            failed_extensions_ref+=("$ext_id")
         fi
     done
 }
 
-# Function to display final status
-display_final_status() {
-    local -n extensions=$1
-    local -n failed_array=$2
+verify_installations() {
+    local -n extensions_ref=$1
+    
+    echo "Verifying installations..."
+    for ext_id in "${!extensions_ref[@]}"; do
+        if code --list-extensions | grep -q "^${ext_id}$"; then
+            echo -e "${GREEN}✓${NC} $ext_id is installed"
+        else
+            echo -e "${RED}✗${NC} $ext_id is not installed"
+        fi
+    done
+}
 
+display_final_status() {
+    local -n extensions_ref=$1
+    local -n failed_extensions_ref=$2
+    
     echo "----------------------------------------"
-    if [ ${#failed_array[@]} -eq 0 ]; then
-        if [ "$UNINSTALL_MODE" = true ]; then
-            echo "Extension uninstallation completed successfully!"
-        else
-            echo "Extension installation completed successfully!"
-        fi
-        return 0
+    if [ ${#failed_extensions_ref[@]} -eq 0 ]; then
+        echo "All components installed successfully!"
+        exit 0
     else
-        if [ "$UNINSTALL_MODE" = true ]; then
-            echo "Extension uninstallation completed with some issues:"
-        else
-            echo "Extension installation completed with some issues:"
-        fi
-        for ext_id in "${failed_array[@]}"; do
-            IFS='|' read -r name description url headers <<< "${extensions[$ext_id]}"
-            echo "- Failed to process: $name"
+        echo "Operation completed with some issues:"
+        echo "Failed to process:"
+        for ext_id in "${failed_extensions_ref[@]}"; do
+            IFS='|' read -r name description url headers <<< "${extensions_ref[$ext_id]}"
+            echo "- $name"
         done
-        return 1
+        exit 1
     fi
-} 
+}
