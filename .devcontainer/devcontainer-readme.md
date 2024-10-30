@@ -42,7 +42,7 @@ The base sw is set up by the [Dockerfile](Dockerfile) in the `.devcontailer` fol
 
 The base extensions is set up by the [devcontainer.json](devcontainer.json) in the `.devcontailer` folder.
 
-## Installation
+## Install and uninstall
 
 The system works on Windows and Mac. Read the [setup-windows](./additions/setup-windows.md) and [setup-mac.md](./additions/setup-mac.md) for how to set it up.
 
@@ -51,6 +51,25 @@ The setup installs the two tools that are needed to run the devcontainer.
 * [VSCode](https://code.visualstudio.com/)
 
 We have chosen to use [Podman Desktop](https://podman-desktop.io/) as it is a good container tool and it is free. You can also use Docker Desktop, but that is not free.
+
+### Delete and rebuild the devcontainer
+
+If you want to start over, you can delete the devcontainer and let the setup script create a new one.
+This is usefull if you have tested stuff and just want to start over.
+
+First exit vscode, then run the script below.
+
+On Mac:
+```bash
+.devcontainer/setup/uninstall-mac.sh
+```
+
+On Windows:
+TODO: Add windows uninstall script
+
+### Post-creation setup
+
+After the container is created the scrip [post-create.sh](post-create.sh) is run. By default it just verifies that the base tools are installed. But you can extend it to install additional tools. Eg like the install-powershell.sh script.
 
 ## Extending the toolbox for your use
 

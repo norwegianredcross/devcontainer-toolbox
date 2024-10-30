@@ -210,49 +210,21 @@ process_module_install() {
     echo "Processing $module_name..."
     if ! check_module "$module_name"; then
         echo "Installing $module_name module..."
-        # For larger modules, use -AllowClobber and increase timeout
-        if [ "$module_name" = "Az" ] || [ "$module_name" = "Microsoft.Graph" ]; then
-            pwsh -Command '
-                try {
-                    $ProgressPreference = "SilentlyContinue"
-                    Install-Module -Name '"'$module_name'"' -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
-                    Write-Host "'"'$module_name'"' installed successfully!"
-                    exit 0
-                } catch {
-                    Write-Host ("Error: " + $_.Exception.Message)
-                    exit 1
-                }
-            ' || {
-                echo "Retrying installation with increased memory..."
-                # Retry with increased memory allocation
-                NODE_OPTIONS="--max-old-space-size=4096" pwsh -Command '
-                    try {
-                        $ProgressPreference = "SilentlyContinue"
-                        Install-Module -Name '"'$module_name'"' -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
-                        Write-Host "'"'$module_name'"' installed successfully!"
-                        exit 0
-                    } catch {
-                        Write-Host ("Error: " + $_.Exception.Message)
-                        exit 1
-                    }
-                '
-            }
-        else
-            # Standard installation for smaller modules
-            pwsh -Command '
-                try {
-                    $ProgressPreference = "SilentlyContinue"
-                    Install-Module -Name '"'$module_name'"' -Scope CurrentUser -Force -ErrorAction Stop
-                    Write-Host "'"'$module_name'"' installed successfully!"
-                    exit 0
-                } catch {
-                    Write-Host ("Error: " + $_.Exception.Message)
-                    exit 1
-                }
-            '
-        fi
         
-        if [ $? -eq 0 ]; then
+        # Run the installation with native progress display
+        pwsh -Command '
+            try {
+                Install-Module -Name '"'$module_name'"' -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
+                Write-Host "'"'$module_name'"' installed successfully!"
+                exit 0
+            } catch {
+                Write-Host ("Error: " + $_.Exception.Message)
+                exit 1
+            }
+        '
+        RESULT=$?
+        
+        if [ $RESULT -eq 0 ]; then
             echo "$module_name installation completed!"
             return 0
         else

@@ -2,6 +2,7 @@
 # File: .devcontainer/post-create.sh
 # Purpose: Post-creation setup script for development container
 # Installs core development tools and verifies versions
+# If you always need to install the addition tools than you can add them at the ned of this script.
 
 set -e
 
@@ -65,3 +66,9 @@ command -v python >/dev/null 2>&1 || { echo "❌ python not found"; exit 1; }
 command -v pwsh >/dev/null 2>&1 || { echo "❌ pwsh not found"; exit 1; }
 command -v az >/dev/null 2>&1 || { echo "❌ az not found"; exit 1; }
 echo "✅ All core tools are accessible"
+
+# Additions: Add your tools here
+# Example adding the install-powershell.sh script
+#echo "START: Installing the PowerShell module"
+#./.devcontainer/additions/install-powershell.sh
+#echo "END: Installing the PowerShell module"
