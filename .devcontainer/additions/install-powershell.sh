@@ -22,6 +22,18 @@
 # 3. PSScriptAnalyzer
 #    - Static code analysis tool for PowerShell scripts and modules
 #    - Documentation: https://learn.microsoft.com/powershell/utility-modules/psscriptanalyzer
+#
+# VS Code Extensions:
+# 1. Azure Resources (ms-azuretools.vscode-azureresourcegroups)
+#    - Azure resource management and visualization
+#
+# 2. Microsoft Graph Toolkit (ms-graph.microsoft-graph-toolkit)
+#    - Microsoft Graph development tools and explorer
+#
+# Note: The following extensions are managed by devcontainer.json:
+# - PowerShell (ms-vscode.powershell)
+# - Azure Account (ms-vscode.azure-account)
+# - Azure CLI Tools (ms-vscode.azurecli)
 
 # Set error handling
 set -e

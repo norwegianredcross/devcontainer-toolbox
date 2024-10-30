@@ -5,7 +5,7 @@ The toolbox contains the tools for working in our Azure environment. It includes
 It gives everyone a common startingpoint. The base install sets up the tools everyone needs.
 You can tailor the tolbox so that it fits your role by running scripts after the initial toolbox is set up.
 
-The toolbox works on Mac and Windows and contains the following:
+The toolbox works on Mac and Windows and contains a base system and a set of extensions.
 
 ## All software you need is in a devcontainer.
 
@@ -54,7 +54,7 @@ We have chosen to use [Podman Desktop](https://podman-desktop.io/) as it is a go
 
 ### Delete and rebuild the devcontainer
 
-If you want to start over, you can delete the devcontainer and let the setup script create a new one.
+If you want to start over, you can delete the devcontainer and then just start vscode as usual. vscode will then automatically build and start the container again.
 This is usefull if you have tested stuff and just want to start over.
 
 First exit vscode, then run the script below.
@@ -67,9 +67,11 @@ On Mac:
 On Windows:
 TODO: Add windows uninstall script
 
-### Post-creation setup
+### Post-creation setup (optional)
 
-After the container is created the scrip [post-create.sh](post-create.sh) is run. By default it just verifies that the base tools are installed. But you can extend it to install additional tools. Eg like the install-powershell.sh script.
+After the container is created the script [post-create.sh](post-create.sh) is run. By default it just verifies that the base tools are installed. But you can extend it to install additional tools. Eg like the install-powershell.sh script.
+
+You can also manually tailor the container by editing the [devcontainer.local.json](devcontainer.local.json) file and the [Dockerfile.local](Dockerfile.local) file.
 
 ## Extending the toolbox for your use
 
@@ -86,6 +88,21 @@ cd .devcontainer/additions
 ### For PowerShell wrangling
 
 The script [install-powerscript.sh](./additions/install-powershell.sh) installs sw and extensions for developing with PowerShell.
+
+Installs the following modules:
+| Module | Purpose | Description |
+|-----------|---------|-------------|
+| [Az PowerShell Module](https://learn.microsoft.com/powershell/azure) | ??? | PowerShell module for managing Azure resources |
+| [Microsoft Graph PowerShell Module](https://learn.microsoft.com/powershell/microsoftgraph) | ??? | PowerShell module for managing Microsoft Graph resources |
+| [PSScriptAnalyzer](https://learn.microsoft.com/powershell/utility-modules/psscriptanalyzer) | ??? | Static code analysis tool for PowerShell scripts and modules |
+
+
+Installs the following VS Code extensions:
+| Extension | Purpose | Description |
+|-----------|---------|-------------|
+| [Azure Resources](https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql) | ??? | Azure resource management and visualization |
+| [Microsoft Graph Toolkit](https://marketplace.visualstudio.com/items?itemName=ms-azuredatastudio.ads) | ??? | Microsoft Graph development tools and explorer |
+
 
 ### For managing configuration files
 
