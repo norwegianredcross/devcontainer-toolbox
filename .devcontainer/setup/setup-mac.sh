@@ -1,10 +1,8 @@
 #!/bin/bash
 # File: setup/setup-mac.sh
-# Purpose: Automated setup script for Operations Toolbox on macOS
-# Usage: curl -fsSL https://raw.githubusercontent.com/your-org/operation-toolbox/main/scripts/setup-mac.sh | bash
+# Purpose: Automated setup script for DevContainer Toolbox on macOS
 # Requirements: macOS 10.15 or higher
-# Author: Operations Team
-# Last Updated: 2024-02-28
+
 
 # Exit on any error
 set -e
@@ -34,7 +32,7 @@ check_command() {
 
 # Main setup process
 main() {
-    log_message ${GREEN} "Starting Operations Toolbox setup..."
+    log_message ${GREEN} "Starting DevContainer Toolbox setup..."
 
     # Check for required software
     log_message ${BLUE} "Checking prerequisites..."

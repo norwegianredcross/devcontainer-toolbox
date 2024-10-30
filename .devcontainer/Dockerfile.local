@@ -1,0 +1,33 @@
+# Extend the base Dockerfile
+FROM --platform=linux/amd64 base-image
+
+# Example: Install additional packages as root
+USER root
+
+# Uncomment and modify sections as needed:
+
+# Additional apt packages
+# RUN apt-get update && \
+#     apt-get install -y --no-install-recommends \
+#         vim \
+#         git \
+#     && rm -rf /var/lib/apt/lists/*
+
+# Additional Node.js packages
+# RUN npm install -g \
+#     prettier \
+#     eslint
+
+# Additional Python packages
+# RUN pip install --no-cache-dir \
+#     pandas \
+#     jupyter
+
+# Additional PowerShell modules
+# RUN pwsh -Command "Install-Module -Name Az -Force -AllowClobber -Scope AllUsers"
+
+# Add your custom configurations, files, or settings
+# COPY .my-custom-config /home/vscode/.my-custom-config
+
+# Always end by switching back to vscode user
+USER vscode

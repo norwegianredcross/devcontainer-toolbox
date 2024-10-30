@@ -1,5 +1,5 @@
 {
-    "name": "Operations Toolbox",
+    "name": "DevContainer Toolbox",
     "build": {
         "dockerfile": "Dockerfile",
         "context": "."

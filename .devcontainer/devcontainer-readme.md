@@ -1,15 +1,19 @@
-# Operations Toolbox
+# DevContainer Toolbox
 
 The toolbox contains the tools for working in our Azure environment. It includes configurations and tools for working with Azure infrastructure, data platforms, security operations, development and monitoring.
 
 It gives everyone a common startingpoint. The base install sets up the tools everyone needs.
 You can tailor the tolbox so that it fits your role by running scripts after the initial toolbox is set up.
 
-The toolbox works on Max and Windows and contains the following:
+The toolbox works on Mac and Windows and contains the following:
+
+## All software you need is in a devcontainer.
+
+The base system is a development container that runs all sw so that you dont need to install any of it on your machine. It is a good idea to have basic understanding of what a [development container](https://code.visualstudio.com/docs/devcontainers/containers) is.
+
+The beauty of using a devcontainer is that you will have the same tools and setup on all your machines. And you can try out new tools without affecting your machine. If you install something that you dont like, you can just delete the container and reinstall it. Deleting the container will not affect your machine or the files you are working on.
 
 ## Base system
-
-The base system is a [development container](https://code.visualstudio.com/docs/devcontainers/containers) that runs all sw so that you dont need to install any of it on your machine.
 
 | What | Purpose | Description |
 |-----------|---------|-------------|
@@ -38,19 +42,39 @@ The base sw is set up by the [Dockerfile](Dockerfile) in the `.devcontailer` fol
 
 The base extensions is set up by the [devcontainer.json](devcontainer.json) in the `.devcontailer` folder.
 
+## Installation
+
+The system works on Windows and Mac. Read the [setup-windows](./additions/setup-windows.md) and [setup-mac.md](./additions/setup-mac.md) for how to set it up.
+
+The setup installs the two tools that are needed to run the devcontainer.
+* [Podman Desktop](https://podman-desktop.io/)
+* [VSCode](https://code.visualstudio.com/)
+
+We have chosen to use [Podman Desktop](https://podman-desktop.io/) as it is a good container tool and it is free. You can also use Docker Desktop, but that is not free.
+
 ## Extending the toolbox for your use
+
+We have prepared some scripts that will install additional software and extensions that you might need.
+These scripts are run inside the devcontainer after it is started. To open a container terminal in vscode select Terminal -> New Terminal.
+Then change to the directory where the script is located and run it.
+eg:
+```bash
+cd .devcontainer/additions
+./install-powershell.sh
+```
+
 
 ### For PowerShell wrangling
 
-The script [install-powerscript.sh](./setup/install-powershell.sh) installs sw and extensions for developing with PowerShell.
+The script [install-powerscript.sh](./additions/install-powershell.sh) installs sw and extensions for developing with PowerShell.
 
 ### For managing configuration files
 
-The script [install-conf-script.sh](./setup/install-conf-script.sh) installs extensions for editing various config files (bicep, ansible etc.).
+The script [install-conf-script.sh](./additions/install-conf-script.sh) installs extensions for editing various config files (bicep, ansible etc.).
 
 ### For Data & Analytics
 
-The script [install-data-analyt.sh](./setup/install-data-analyt.sh) installs extensions for working with data and analytics.
+The script [install-data-analyt.sh](./additions/install-data-analyt.sh) installs extensions for working with data and analytics.
 
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
@@ -65,7 +89,7 @@ The script [install-data-analyt.sh](./setup/install-data-analyt.sh) installs ext
 
 ### For Azure Infrastructure
 
-The script [install-azure-infra.sh](./setup/install-azure-infra.sh) installs extensions for working with Azure infrastructure.
+The script [install-azure-infra.sh](./additions/install-azure-infra.sh) installs extensions for working with Azure infrastructure.
 
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
@@ -78,7 +102,7 @@ The script [install-azure-infra.sh](./setup/install-azure-infra.sh) installs ext
 
 ### For Monitoring & Logging
 
-The script [install-mon-log.sh](./setup/install-mon-log.sh) installs extensions for working with Azure Monitoring & Logging.
+The script [install-mon-log.sh](./additions/install-mon-log.sh) installs extensions for working with Azure Monitoring & Logging.
 
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
@@ -89,7 +113,7 @@ The script [install-mon-log.sh](./setup/install-mon-log.sh) installs extensions 
 
 ### For Security Operations
 
-The script [install-sec-ops.sh](./setup/install-sec-ops.sh) installs extensions for working with Azure Security Operations.
+The script [install-sec-ops.sh](./additions/install-sec-ops.sh) installs extensions for working with Azure Security Operations.
 
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
@@ -110,7 +134,7 @@ We support development in C-Sharp, Python and JavaScript/TypeScript
 
 #### For development in JavaScript/TypeScript
 
-The script [install-dev-javascript.sh](./setup/install-dev-javascript.sh) installs extensions for developing in JavaScript/TypeScript
+The script [install-dev-javascript.sh](./additions/install-dev-javascript.sh) installs extensions for developing in JavaScript/TypeScript
 
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
@@ -118,7 +142,7 @@ The script [install-dev-javascript.sh](./setup/install-dev-javascript.sh) instal
 
 #### For development in C-Sharp
 
-The script [install-dev-csharp.sh](./setup/install-dev-csharp.sh) installs extensions for developing in c-sharp.
+The script [install-dev-csharp.sh](./additions/install-dev-csharp.sh) installs extensions for developing in c-sharp.
 
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
@@ -127,7 +151,7 @@ The script [install-dev-csharp.sh](./setup/install-dev-csharp.sh) installs exten
 
 #### For development in Python
 
-The script [install-dev-python.sh](./setup/install-dev-csharp.sh) installs extensions for developing in Python.
+The script [install-dev-python.sh](./additions/install-dev-csharp.sh) installs extensions for developing in Python.
 
 | Extension | Purpose | Description |
 |-----------|---------|-------------|

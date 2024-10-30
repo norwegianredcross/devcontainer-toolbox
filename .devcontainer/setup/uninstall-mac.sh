@@ -1,6 +1,6 @@
 #!/bin/bash
 # File: setup/uninstall-mac.sh
-# Purpose: Clean up Operations Toolbox development container and related resources
+# Purpose: Clean up DevContainer Toolbox development container and related resources
 # Platform: macOS
 # Usage: ./uninstall-mac.sh
 # Last Updated: 2024-10-28
@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Container identifier
-CONTAINER_NAME="operations-toolbox"
+CONTAINER_NAME="devcontainer-toolbox"
 WORKSPACE_PATH=$(pwd)
 
 # Logging function
@@ -35,35 +35,35 @@ check_command "podman"
 
 # Main cleanup process
 main() {
-    log_message ${BLUE} "Starting cleanup process for Operations Toolbox container..."
+    log_message ${BLUE} "Starting cleanup process for DevContainer Toolbox container..."
 
     # Stop and remove the specific dev container
-    log_message ${YELLOW} "Looking for Operations Toolbox container..."
+    log_message ${YELLOW} "Looking for DevContainer Toolbox container..."
     local container_ids=$(podman ps -a --filter "label=devcontainer.local_folder=${WORKSPACE_PATH}" --quiet)
 
     if [ -n "$container_ids" ]; then
-        log_message ${YELLOW} "Stopping and removing Operations Toolbox container..."
+        log_message ${YELLOW} "Stopping and removing DevContainer Toolbox container..."
         podman stop $container_ids 2>/dev/null || true
         podman rm -f $container_ids 2>/dev/null || true
         log_message ${GREEN} "Container removed successfully."
     else
-        log_message ${BLUE} "No Operations Toolbox container found running."
+        log_message ${BLUE} "No DevContainer Toolbox container found running."
     fi
 
     # Remove the specific dev container image
-    log_message ${YELLOW} "Removing Operations Toolbox container image..."
-    local image_ids=$(podman images "vsc-operations-toolbox*" -q)
+    log_message ${YELLOW} "Removing DevContainer Toolbox container image..."
+    local image_ids=$(podman images "vsc-devcontainer-toolbox*" -q)
     if [ -n "$image_ids" ]; then
         podman image rm -f $image_ids 2>/dev/null || true
         log_message ${GREEN} "Container image removed successfully."
     else
-        log_message ${BLUE} "No Operations Toolbox image found."
+        log_message ${BLUE} "No DevContainer Toolbox image found."
     fi
 
     # Clean up VS Code dev containers cache for this specific container
     local cache_path="$HOME/Library/Application Support/Code/User/globalStorage/ms-vscode-remote.remote-containers/data/${WORKSPACE_PATH//\//-}"
     if [ -d "$cache_path" ]; then
-        log_message ${YELLOW} "Cleaning VS Code cache for Operations Toolbox..."
+        log_message ${YELLOW} "Cleaning VS Code cache for DevContainer Toolbox..."
         rm -rf "$cache_path" 2>/dev/null || true
         log_message ${GREEN} "Cache cleaned successfully."
     fi
@@ -85,7 +85,7 @@ main() {
 }
 
 # Confirmation prompt
-log_message ${YELLOW} "⚠️  This will remove the Operations Toolbox container and its related resources."
+log_message ${YELLOW} "⚠️  This will remove the DevContainer Toolbox container and its related resources."
 log_message ${YELLOW} "Other containers and images will not be affected."
 log_message ${YELLOW} "Continue? (y/N)"
 read -r response
