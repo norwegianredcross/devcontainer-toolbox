@@ -108,6 +108,12 @@ Installs the following VS Code extensions:
 
 The script [install-conf-script.sh](./additions/install-conf-script.sh) installs extensions for editing various config files (bicep, ansible etc.).
 
+Installs the following VS Code extensions:
+| Extension | Purpose | Description |
+|-----------|---------|-------------|
+| [Bicep](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep) | Infrastructure as Code | Bicep authoring and deployment |
+| [Ansible](https://marketplace.visualstudio.com/items?itemName=redhat.ansible) | Configuration Management | Ansible development |
+
 ### For Data & Analytics
 
 The script [install-data-analyt.sh](./additions/install-data-analyt.sh) installs extensions for working with data and analytics.

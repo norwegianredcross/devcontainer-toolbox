@@ -19,3 +19,4 @@ This can also be helpful: https://podman-desktop.io/docs/migrating-from-docker/u
 
 I did a lot of trial and error to get it working. But I think that this was the one that got it working https://podman-desktop.io/docs/migrating-from-docker/emulating-docker-cli-with-podman
 
+A good article about the different options: https://medium.com/@guillem.riera/the-most-performant-docker-setup-on-macos-apple-silicon-m1-m2-m3-for-x64-amd64-compatibility-da5100e2557d
