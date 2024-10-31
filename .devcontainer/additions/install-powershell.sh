@@ -49,6 +49,8 @@ source "$(dirname "$0")/core-install-extensions.sh"
 declare -A PWSH_EXTENSIONS
 PWSH_EXTENSIONS["ms-vscode.powershell"]="PowerShell|PowerShell language support and debugging"
 PWSH_EXTENSIONS["ms-vscode.azure-account"]="Azure Account|Azure account management and subscriptions"
+PWSH_EXTENSIONS["ms-azuretools.vscode-azureresourcegroups"]="Azure Resources|An extension for viewing and managing Azure resources"
+
 
 
 if [ "${UNINSTALL_MODE}" -eq 1 ]; then
