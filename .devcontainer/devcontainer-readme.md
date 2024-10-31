@@ -181,6 +181,8 @@ We support development in C-Sharp, Python and JavaScript/TypeScript
 
 The script [install-dev-csharp.sh](./additions/install-dev-csharp.sh) installs extensions for developing in c-sharp.
 
+See howto for tips here [howto-functions-csharp](./howto/howto-functions-csharp.md)
+
 | Extension | Purpose | Description |
 |-----------|---------|-------------|
 | [Azure Developer CLI](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.azure-dev) | Development Tools | Project scaffolding and management |
