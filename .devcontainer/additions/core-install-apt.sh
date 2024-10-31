@@ -1,5 +1,5 @@
 #!/bin/bash
-# file: .devcontainer/additions/core-install-python-packages.sh
+# file: .devcontainer/additions/core-install-apt.sh
 
 set -e
 
@@ -24,23 +24,23 @@ error() {
 is_package_installed() {
     local package=$1
     debug "Checking if package '$package' is installed..."
-    pip show "$package" >/dev/null 2>&1
+    dpkg -l "$package" 2>/dev/null | grep -q "^ii"
 }
 
 # Function to get installed package version
 get_package_version() {
     local package=$1
-    pip show "$package" 2>/dev/null | grep "Version" | cut -d " " -f 2
+    dpkg -l "$package" 2>/dev/null | grep "^ii" | awk '{print $3}'
 }
 
-# Function to install Python packages
+# Function to install apt packages
 install_packages() {
     debug "=== Starting package installation ==="
     
     # Get array reference
     declare -n arr=$1
     
-    log "Installing ${#arr[@]} Python packages..."
+    log "Installing ${#arr[@]} system packages..."
     echo
     printf "%-25s %-20s %s\n" "Package" "Status" "Version"
     printf "%s\n" "----------------------------------------------------"
@@ -50,6 +50,15 @@ install_packages() {
     local failed=0
     declare -A successful_ops
     
+    # First update package lists
+    if [ "$EUID" -ne 0 ]; then
+        debug "Running apt update with sudo..."
+        sudo apt-get update >/dev/null 2>&1
+    else
+        debug "Running apt update..."
+        apt-get update >/dev/null 2>&1
+    fi
+    
     for package in "${arr[@]}"; do
         printf "%-25s " "$package"
         
@@ -58,24 +67,32 @@ install_packages() {
             old_version=$(get_package_version "$package")
             debug "Package '$package' is already installed (v$old_version)"
             
-            if pip install --no-cache-dir -U "$package" >/dev/null 2>&1; then
-                local new_version
-                new_version=$(get_package_version "$package")
-                if [ "$old_version" != "$new_version" ]; then
-                    printf "%-20s %s\n" "Updated" "v$new_version"
-                    updated=$((updated + 1))
-                else
-                    printf "%-20s %s\n" "Up to date" "v$new_version"
-                    installed=$((installed + 1))
-                fi
-                successful_ops["$package"]=$new_version
+            # Try to upgrade the package
+            if [ "$EUID" -ne 0 ]; then
+                sudo apt-get install -y --only-upgrade "$package" >/dev/null 2>&1
             else
-                printf "%-20s\n" "Update failed"
-                failed=$((failed + 1))
+                apt-get install -y --only-upgrade "$package" >/dev/null 2>&1
             fi
+            
+            local new_version
+            new_version=$(get_package_version "$package")
+            if [ "$old_version" != "$new_version" ]; then
+                printf "%-20s %s\n" "Updated" "v$new_version"
+                updated=$((updated + 1))
+            else
+                printf "%-20s %s\n" "Up to date" "v$new_version"
+                installed=$((installed + 1))
+            fi
+            successful_ops["$package"]=$new_version
         else
             debug "Installing package '$package'..."
-            if pip install --no-cache-dir "$package" >/dev/null 2>&1; then
+            if [ "$EUID" -ne 0 ]; then
+                sudo apt-get install -y "$package" >/dev/null 2>&1
+            else
+                apt-get install -y "$package" >/dev/null 2>&1
+            fi
+            
+            if is_package_installed "$package"; then
                 local version
                 version=$(get_package_version "$package")
                 printf "%-20s %s\n" "Installed" "v$version"
@@ -103,14 +120,14 @@ install_packages() {
     echo "  Failed: $failed"
 }
 
-# Function to uninstall Python packages
+# Function to uninstall apt packages
 uninstall_packages() {
     debug "=== Starting package uninstallation ==="
     
     # Get array reference
     declare -n arr=$1
     
-    log "Uninstalling ${#arr[@]} Python packages..."
+    log "Uninstalling ${#arr[@]} system packages..."
     echo
     printf "%-25s %-20s %s\n" "Package" "Status" "Previous Version"
     printf "%s\n" "----------------------------------------------------"
@@ -128,7 +145,13 @@ uninstall_packages() {
             version=$(get_package_version "$package")
             debug "Uninstalling package '$package' (v$version)..."
             
-            if pip uninstall -y "$package" >/dev/null 2>&1; then
+            if [ "$EUID" -ne 0 ]; then
+                sudo apt-get remove -y "$package" >/dev/null 2>&1
+            else
+                apt-get remove -y "$package" >/dev/null 2>&1
+            fi
+            
+            if ! is_package_installed "$package"; then
                 printf "%-20s %s\n" "Uninstalled" "was v$version"
                 uninstalled=$((uninstalled + 1))
                 successful_ops["$package"]=$version
@@ -157,7 +180,7 @@ uninstall_packages() {
     echo "  Failed: $failed"
 }
 
-# Process Python packages based on mode
+# Process apt packages based on mode
 process_packages() {
     if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
         uninstall_packages "$1"
