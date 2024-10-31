@@ -47,8 +47,8 @@ PYTHON_PACKAGES=(
 )
 
 # Source the core installation scripts
-source "$(dirname "$0")/install-python-packages-core.sh"
-source "$(dirname "$0")/install-extensions-core.sh"
+source "$(dirname "$0")/core-install-python-packages.sh"
+source "$(dirname "$0")/core-install-extensions.sh"
 
 # Declare the VS Code extensions array
 declare -A DATA_ANALYTICS_EXTENSIONS

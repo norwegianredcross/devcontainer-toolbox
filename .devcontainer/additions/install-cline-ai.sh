@@ -1,50 +1,82 @@
 #!/bin/bash
 # file: .devcontainer/additions/install-cline-ai.sh
-# Description: Script to install VS Code AI development and coding assistance extensions
-#
-# Usage:
-#   ./install-cline-ai.sh              # Interactive installation with confirmation
-#   ./install-cline-ai.sh -y           # Automatic installation without confirmation
-#   ./install-cline-ai.sh --uninstall  # Interactive uninstallation with confirmation
-#   ./install-cline-ai.sh -y --uninstall # Automatic uninstallation without confirmation
-#
-# Components managed:
-# 1. AI Development Tools:
-#    a. Cline (prev. Claude Dev) (saoudrizwan.claude-dev)
-#       - AI assistant for coding, debugging, and documentation
-#       - Features:
-#         - Creates and edits files with approval
-#         - Executes terminal commands with permission
-#         - Browser integration for testing and debugging
-#         - AST and code structure analysis
-#       - Documentation: https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev
-#       - Requires:
-#         - VS Code version ^1.84.0
-#         - API key from supported providers (OpenRouter, Anthropic, etc.)
 
-source "$(dirname "$0")/install-extensions.sh"
+# Initialize mode flags
+DEBUG_MODE=0
+UNINSTALL_MODE=0
+FORCE_MODE=0
 
-declare -A EXTENSIONS
-EXTENSIONS=(
-    ["saoudrizwan.claude-dev"]="Cline|AI assistant for writing code, fixing bugs, and documentation|https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev|"
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --debug)
+            DEBUG_MODE=1
+            shift
+            ;;
+        --uninstall)
+            UNINSTALL_MODE=1
+            shift
+            ;;
+        --force)
+            FORCE_MODE=1
+            shift
+            ;;
+        *)
+            echo "ERROR: Unknown option: $1" >&2
+            echo "Usage: $0 [--debug] [--uninstall] [--force]" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Export mode flags for the core scripts
+export DEBUG_MODE
+export UNINSTALL_MODE
+export FORCE_MODE
+
+# Define Python packages array for potential AI-related packages
+# Note: Currently empty as Cline doesn't require specific Python packages,
+# but maintained for future expansion
+PYTHON_PACKAGES=(
 )
 
-display_header "AI Tools Extension Manager"
+# Source the core installation scripts
+source "$(dirname "$0")/core-install-python-packages.sh"
+source "$(dirname "$0")/core-install-extensions.sh"
 
-EXTENSIONS_TO_PROCESS=()
-get_extensions_to_process EXTENSIONS EXTENSIONS_TO_PROCESS
+# Declare the VS Code extensions array
+declare -A AI_EXTENSIONS
+AI_EXTENSIONS["saoudrizwan.claude-dev"]="Cline|AI assistant for coding and documentation"
 
-if ! display_extensions_status EXTENSIONS EXTENSIONS_TO_PROCESS; then
-    exit 0
+
+if [ "${UNINSTALL_MODE}" -eq 1 ]; then
+    echo "🔄 Starting uninstallation process..."
+    
+    # First uninstall VS Code extensions
+    process_extensions "AI_EXTENSIONS"
+    
+    # Then uninstall Python packages (if any in the future)
+    if [ ${#PYTHON_PACKAGES[@]} -gt 0 ]; then
+        process_packages "PYTHON_PACKAGES"
+    fi
+    
+    echo "🏁 Uninstallation process complete!"
+else
+    echo "🔄 Starting installation process..."
+    
+    # First install Python packages (if any in the future)
+    if [ ${#PYTHON_PACKAGES[@]} -gt 0 ]; then
+        process_packages "PYTHON_PACKAGES"
+    fi
+    
+    # Then install VS Code extensions
+    process_extensions "AI_EXTENSIONS"
+    
+    # Post-installation message
+    echo
+    echo "🎉 Installation process complete!"
+    echo
+    echo "Important Notes:"
+    echo "1. You will need to configure your API key from a supported provider (OpenRouter, Anthropic, etc.)"
+    echo "2. For detailed setup instructions, visit: https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev"
 fi
-
-if ! get_user_confirmation; then
-    exit 1
-fi
-
-FAILED_EXTENSIONS=()
-process_extensions EXTENSIONS EXTENSIONS_TO_PROCESS FAILED_EXTENSIONS
-
-verify_installations EXTENSIONS
-
-display_final_status EXTENSIONS FAILED_EXTENSIONS

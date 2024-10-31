@@ -1,5 +1,5 @@
 #!/bin/bash
-# file: .devcontainer/additions/install-extensions-core-debug.sh
+# file: .devcontainer/additions/core-install-extensions-debug.sh
 
 set -e
 

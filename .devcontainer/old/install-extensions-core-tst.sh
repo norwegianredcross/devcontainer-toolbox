@@ -1,5 +1,5 @@
 #!/bin/bash
-# file: .devcontainer/additions/install-extensions-core.sh
+# file: .devcontainer/additions/core-install-extensions.sh
 
 set -e
 

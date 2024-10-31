@@ -1,5 +1,5 @@
 #!/bin/bash
-# file: .devcontainer/additions/install-python-packages-core.sh
+# file: .devcontainer/additions/core-install-python-packages.sh
 
 set -e
 
