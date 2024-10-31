@@ -1,6 +1,6 @@
 ### Data & Analytics
-Script: [install-data-analyt.sh](./additions/install-data-analyt.sh)
-Documentation: [howto-data-analyt](./howto/howto-data-analyt.md)
+Script: [install-data-analytics.sh](./additions/install-data-analytics.sh)
+Documentation: [howto-data-analytics](./howto/howto-data-analytics.md)
 
 | Extension | Focus Area |
 |-----------|------------|
