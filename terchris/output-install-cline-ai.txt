@@ -1,0 +1,58 @@
+vscode ➜ /workspace (main) $ .devcontainer/additions/install-cline-ai.sh
+🔄 Starting installation process for: Cline AI Assistant
+Purpose: Installs Cline (previously Claude Dev) extension for AI assistance in VS Code
+🔧 Performing pre-installation setup...
+No additional setup required for this script
+[2024-11-01 13:50:21] Installing 1 extensions...
+
+Extension                 Description                         ID                             Status
+----------------------------------------------------------------------------------------------------
+Cline                     AI assistant for coding and documentation saoudrizwan.claude-dev         Installed v2.1.2
+
+Current Status:
+* ✅ Cline (v2.1.2)
+
+----------------------------------------
+[2024-11-01 13:50:34] Extension Status Summary
+Total extensions: 1
+  Already installed: 0
+  Newly installed: 1
+  Failed to install: 0
+
+🔍 Verifying installations...
+Running: code --list-extensions | grep -q saoudrizwan.claude-dev && echo '✅ Cline extension is installed' || echo '❌ Cline extension is not installed'
+✅ Cline extension is installed
+
+🔍 Checking extension state for Cline...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🎉 Installation process complete for: Cline AI Assistant!
+Purpose: Installs Cline (previously Claude Dev) extension for AI assistance in VS Code
+
+Important Notes:
+1. You will need to configure your API key from a supported provider (OpenRouter, Anthropic, etc.)
+2. If you haven't already, authorize VS Code with your chosen provider
+3. You may need to reload VS Code for changes to take effect (Ctrl+Shift+P > 'Developer: Reload Window')
+
+Documentation Links:
+- Local Guide: .devcontainer/howto/howto-cline-ai.md
+- Cline Extension: https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev
+- Cline Documentation: https://cline.ai/docs
+
+✅ Installation verified: Cline extension is ready to use
+vscode ➜ /workspace (main) $ 

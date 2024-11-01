@@ -1,0 +1,20 @@
+vscode ➜ /workspace (main) $ .devcontainer/additions/install-dev-csharp.sh
+🔄 Starting installation process for: C# Development Tools
+Purpose: Installs .NET SDK 8.0, Azure Functions Core Tools, and C# development extensions for VS Code
+🔧 Performing pre-installation setup...
+Updating package lists...
+Hit:1 http://deb.debian.org/debian bookworm InRelease
+Hit:2 http://deb.debian.org/debian bookworm-updates InRelease                                                                                           
+Hit:3 http://deb.debian.org/debian-security bookworm-security InRelease                                                                                 
+Hit:4 https://deb.nodesource.com/node_20.x nodistro InRelease                                                                                           
+Get:5 https://dl.yarnpkg.com/debian stable InRelease [17.1 kB]                                                                                         
+Hit:6 https://packages.microsoft.com/repos/azure-cli bookworm InRelease
+Hit:7 https://packages.microsoft.com/debian/12/prod bookworm InRelease
+Fetched 17.1 kB in 4s (4534 B/s)
+Reading package lists... Done
+[2024-11-01 14:28:38] Installing 2 system packages...
+
+Package                   Status               Version
+----------------------------------------------------
+dotnet-sdk-8.0            
+

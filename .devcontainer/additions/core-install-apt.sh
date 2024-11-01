@@ -27,7 +27,11 @@ error() {
 is_package_installed() {
     local package=$1
     debug "Checking if package '$package' is installed..."
-    dpkg -l "$package" 2>/dev/null | grep -q "^ii"
+    if dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "^install ok installed$"; then
+        return 0  # Package is installed
+    else
+        return 1  # Package is not installed
+    fi
 }
 
 # Function to get installed package version
@@ -37,7 +41,7 @@ get_package_version() {
 }
 
 # Function to install apt packages
-process_system_packages() {
+process_system_packages_install() {
     debug "=== Starting package installation ==="
     
     # Get array reference
@@ -66,47 +70,35 @@ process_system_packages() {
     for package in "${arr[@]}"; do
         printf "%-25s " "$package"
         
-        if is_package_installed "$package"; then
-            local old_version
-            old_version=$(get_package_version "$package")
-            debug "Package '$package' is already installed (v$old_version)"
-            
-            # Try to upgrade the package
-            local upgrade_output
-            upgrade_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --only-upgrade "$package" 2>&1)
-            if [ $? -eq 0 ]; then
-                local new_version
-                new_version=$(get_package_version "$package")
-                if [ "$old_version" != "$new_version" ]; then
-                    printf "%-20s %s\n" "Updated" "v$new_version"
-                    updated=$((updated + 1))
+        # Try to install/upgrade the package
+        local install_output
+        install_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$package" 2>&1)
+        local exit_code=$?
+        
+        # Verify installation regardless of apt-get output
+        if command -v "$package" >/dev/null 2>&1 || dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "^install ok installed$"; then
+            local version
+            version=$(dpkg-query -W -f='${Version}' "$package" 2>/dev/null)
+            if [ $exit_code -eq 0 ]; then
+                if echo "$install_output" | grep -q "is already the newest version"; then
+                    printf "%-20s %s\n" "Up to date" "v$version"
+                    installed=$((installed + 1))
                 else
-                    printf "%-20s %s\n" "Up to date" "v$new_version"
+                    printf "%-20s %s\n" "Installed" "v$version"
                     installed=$((installed + 1))
                 fi
-                successful_ops["$package"]=$new_version
-            else
-                printf "%-20s\n" "Update failed"
-                error "Failed to update $package:"
-                error "$upgrade_output"
-                failed=$((failed + 1))
-            fi
-        else
-            debug "Installing package '$package'..."
-            local install_output
-            install_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$package" 2>&1)
-            if [ $? -eq 0 ] && is_package_installed "$package"; then
-                local version
-                version=$(get_package_version "$package")
-                printf "%-20s %s\n" "Installed" "v$version"
-                installed=$((installed + 1))
                 successful_ops["$package"]=$version
             else
-                printf "%-20s\n" "Installation failed"
-                error "Failed to install $package:"
+                printf "%-20s\n" "Verification failed"
+                error "Package installed but exit code was non-zero:"
                 error "$install_output"
                 failed=$((failed + 1))
             fi
+        else
+            printf "%-20s\n" "Installation failed"
+            error "Failed to install $package:"
+            error "$install_output"
+            failed=$((failed + 1))
         fi
     done
     
@@ -140,6 +132,7 @@ process_system_packages_uninstall() {
     declare -n arr=$1
     
     log "Uninstalling ${#arr[@]} system packages..."
+    echo "⚠️  Note: This will also remove dependent packages that are no longer needed"
     echo
     printf "%-25s %-20s %s\n" "Package" "Status" "Previous Version"
     printf "%s\n" "----------------------------------------------------"
@@ -152,21 +145,24 @@ process_system_packages_uninstall() {
     for package in "${arr[@]}"; do
         printf "%-25s " "$package"
         
-        if is_package_installed "$package"; then
+        # Check if package exists first
+        if dpkg -l "$package" >/dev/null 2>&1; then
             local version
-            version=$(get_package_version "$package")
+            version=$(dpkg -l "$package" 2>/dev/null | grep "^ii" | awk '{print $3}')
             debug "Uninstalling package '$package' (v$version)..."
             
-            local uninstall_output
-            uninstall_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get remove -y "$package" 2>&1)
-            if [ $? -eq 0 ] && ! is_package_installed "$package"; then
+            # Show what will be removed
+            echo "Packages that will be removed with $package:"
+            apt-get -s remove "$package" | grep "^Remv" || true
+            
+            # Try to uninstall the package
+            if sudo DEBIAN_FRONTEND=noninteractive apt-get remove -y "$package"; then
                 printf "%-20s %s\n" "Uninstalled" "was v$version"
                 uninstalled=$((uninstalled + 1))
                 successful_ops["$package"]=$version
             else
                 printf "%-20s %s\n" "Failed" "v$version"
-                error "Failed to uninstall $package:"
-                error "$uninstall_output"
+                error "Failed to uninstall $package"
                 failed=$((failed + 1))
             fi
         else
@@ -174,6 +170,14 @@ process_system_packages_uninstall() {
             skipped=$((skipped + 1))
         fi
     done
+    
+    # Run autoremove to clean up dependencies
+    if [ $uninstalled -gt 0 ]; then
+        echo
+        echo "🧹 Cleaning up unused dependencies..."
+        echo "The following packages are no longer needed and will be removed:"
+        sudo DEBIAN_FRONTEND=noninteractive apt-get autoremove -y
+    fi
     
     echo
     echo "Current Status:"
@@ -192,12 +196,19 @@ process_system_packages_uninstall() {
     echo "  Successfully uninstalled: $uninstalled"
     echo "  Skipped/Not installed: $skipped"
     echo "  Failed: $failed"
+    echo
+    echo "Note: Dependencies that were automatically installed with these packages"
+    echo "      have also been removed to keep the system clean."
     
     # Return failure if any package failed to uninstall
     [ $failed -eq 0 ] || return 1
 }
 
-# Handle install or uninstall based on mode
-if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
-    process_system_packages=process_system_packages_uninstall
-fi
+# Function to process packages (install or uninstall)
+process_system_packages() {
+    if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
+        process_system_packages_uninstall "$@"
+    else
+        process_system_packages_install "$@"
+    fi
+}

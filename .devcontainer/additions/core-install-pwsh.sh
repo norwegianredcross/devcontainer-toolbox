@@ -23,40 +23,74 @@ error() {
     echo "ERROR: $*" >&2
 }
 
+# Function to check if PowerShell is available
+check_pwsh_available() {
+    if ! command -v pwsh >/dev/null 2>&1; then
+        error "PowerShell (pwsh) is not installed or not in PATH"
+        return 1
+    fi
+    return 0
+}
+
 # Function to check if a PowerShell module is installed
 is_module_installed() {
     local module=$1
     debug "Checking if module '$module' is installed..."
-    pwsh -NoProfile -Command "
-        if (Get-Module -ListAvailable -Name '$module' -ErrorAction SilentlyContinue) {
-            exit 0
-        } else {
-            exit 1
-        }
-    "
+    pwsh -NoProfile -NonInteractive -Command "if (Get-Module -ListAvailable -Name '$module') { exit 0 } else { exit 1 }" 2>/dev/null
 }
 
 # Function to get installed module version
 get_module_version() {
     local module=$1
-    pwsh -NoProfile -Command "
-        try {
-            (Get-Module -ListAvailable -Name '$module' | 
-             Sort-Object Version -Descending | 
-             Select-Object -First 1).Version.ToString()
-        } catch {
-            Write-Error \$_.Exception.Message
-            exit 1
-        }
-    "
+    pwsh -NoProfile -NonInteractive -Command "(Get-Module -ListAvailable -Name '$module' | Sort-Object Version -Descending | Select-Object -First 1).Version.ToString()" 2>/dev/null
+}
+
+# Function to try update module
+try_update_module() {
+    local module=$1
+    pwsh -NoProfile -NonInteractive -Command "Update-Module -Name '$module' -Force" 2>/dev/null
+}
+
+# Function to try install module
+try_install_module() {
+    local module=$1
+    pwsh -NoProfile -NonInteractive -Command "Install-Module -Name '$module' -Force -AllowClobber -Scope CurrentUser" 2>/dev/null
+}
+
+# Function to try uninstall module
+try_uninstall_module() {
+    local module=$1
+    pwsh -NoProfile -NonInteractive -Command "Remove-Module -Name '$module' -Force -ErrorAction SilentlyContinue; Uninstall-Module -Name '$module' -AllVersions -Force" 2>/dev/null
+}
+
+# Function to verify PSGallery
+verify_psgallery() {
+    pwsh -NoProfile -NonInteractive -Command "Get-PSRepository -Name PSGallery" >/dev/null 2>&1
+}
+
+# Function to set PSGallery trusted
+set_psgallery_trusted() {
+    pwsh -NoProfile -NonInteractive -Command "Set-PSRepository -Name PSGallery -InstallationPolicy Trusted" >/dev/null 2>&1
 }
 
 # Function to install PowerShell modules
 process_pwsh_modules() {
     debug "=== Starting PowerShell module installation ==="
     
+    # Verify PowerShell is available
+    if ! check_pwsh_available; then
+        error "Cannot proceed with PowerShell module installation"
+        return 1
+    fi
+    
     # Get array reference
     declare -n arr=$1
+    
+    # Skip if no modules to process
+    if [ ${#arr[@]} -eq 0 ]; then
+        debug "No PowerShell modules to process"
+        return 0
+    fi
     
     log "Installing ${#arr[@]} PowerShell modules..."
     echo
@@ -70,7 +104,10 @@ process_pwsh_modules() {
     
     # Set PSGallery as trusted
     debug "Setting PSGallery as trusted..."
-    pwsh -NoProfile -Command "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted" >/dev/null 2>&1
+    if ! set_psgallery_trusted; then
+        error "Failed to set PSGallery as trusted"
+        return 1
+    fi
     
     for module in "${arr[@]}"; do
         printf "%-25s " "$module"
@@ -81,15 +118,7 @@ process_pwsh_modules() {
             debug "Module '$module' is already installed (v$old_version)"
             
             # Try to update the module
-            if pwsh -NoProfile -Command "
-                try {
-                    Update-Module -Name '$module' -Force -ErrorAction Stop
-                    exit 0
-                } catch {
-                    Write-Error \$_.Exception.Message
-                    exit 1
-                }
-            " >/dev/null 2>&1; then
+            if try_update_module "$module"; then
                 local new_version
                 new_version=$(get_module_version "$module")
                 if [ "$old_version" != "$new_version" ]; then
@@ -106,15 +135,7 @@ process_pwsh_modules() {
             fi
         else
             debug "Installing module '$module'..."
-            if pwsh -NoProfile -Command "
-                try {
-                    Install-Module -Name '$module' -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
-                    exit 0
-                } catch {
-                    Write-Error \$_.Exception.Message
-                    exit 1
-                }
-            " >/dev/null 2>&1; then
+            if try_install_module "$module"; then
                 local version
                 version=$(get_module_version "$module")
                 printf "%-20s %s\n" "Installed" "v$version"
@@ -129,9 +150,13 @@ process_pwsh_modules() {
     
     echo
     echo "Current Status:"
-    while IFS= read -r module; do
-        printf "* ✅ %s (v%s)\n" "$module" "${successful_ops[$module]}"
-    done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    if [ ${#successful_ops[@]} -gt 0 ]; then
+        while IFS= read -r module; do
+            printf "* ✅ %s (v%s)\n" "$module" "${successful_ops[$module]}"
+        done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    else
+        echo "No modules were successfully installed or updated"
+    fi
     
     echo
     echo "----------------------------------------"
@@ -140,14 +165,29 @@ process_pwsh_modules() {
     echo "  Installed/Up to date: $installed"
     echo "  Updated: $updated"
     echo "  Failed: $failed"
+    
+    # Return failure if any module failed
+    [ $failed -eq 0 ] || return 1
 }
 
 # Function to uninstall PowerShell modules
 process_pwsh_modules_uninstall() {
     debug "=== Starting PowerShell module uninstallation ==="
     
+    # Verify PowerShell is available
+    if ! check_pwsh_available; then
+        error "Cannot proceed with PowerShell module uninstallation"
+        return 1
+    fi
+    
     # Get array reference
     declare -n arr=$1
+    
+    # Skip if no modules to process
+    if [ ${#arr[@]} -eq 0 ]; then
+        debug "No PowerShell modules to process"
+        return 0
+    fi
     
     log "Uninstalling ${#arr[@]} PowerShell modules..."
     echo
@@ -167,16 +207,7 @@ process_pwsh_modules_uninstall() {
             version=$(get_module_version "$module")
             debug "Uninstalling module '$module' (v$version)..."
             
-            if pwsh -NoProfile -Command "
-                try {
-                    Remove-Module -Name '$module' -Force -ErrorAction SilentlyContinue
-                    Uninstall-Module -Name '$module' -AllVersions -Force -ErrorAction Stop
-                    exit 0
-                } catch {
-                    Write-Error \$_.Exception.Message
-                    exit 1
-                }
-            " >/dev/null 2>&1; then
+            if try_uninstall_module "$module"; then
                 printf "%-20s %s\n" "Uninstalled" "was v$version"
                 uninstalled=$((uninstalled + 1))
                 successful_ops["$module"]=$version
@@ -192,9 +223,13 @@ process_pwsh_modules_uninstall() {
     
     echo
     echo "Current Status:"
-    while IFS= read -r module; do
-        printf "* 🗑️  %s (was v%s)\n" "$module" "${successful_ops[$module]}"
-    done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    if [ ${#successful_ops[@]} -gt 0 ]; then
+        while IFS= read -r module; do
+            printf "* 🗑️  %s (was v%s)\n" "$module" "${successful_ops[$module]}"
+        done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    else
+        echo "No modules were successfully uninstalled"
+    fi
     
     echo
     echo "----------------------------------------"
@@ -203,6 +238,9 @@ process_pwsh_modules_uninstall() {
     echo "  Successfully uninstalled: $uninstalled"
     echo "  Skipped/Not installed: $skipped"
     echo "  Failed: $failed"
+    
+    # Return failure if any module failed
+    [ $failed -eq 0 ] || return 1
 }
 
 # Handle install or uninstall based on mode

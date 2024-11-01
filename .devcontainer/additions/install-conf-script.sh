@@ -18,32 +18,22 @@ SCRIPT_DESCRIPTION="Installs tools and extensions for Infrastructure as Code (Bi
 
 # Before running installation, we need to add any required repositories
 pre_installation_setup() {
-    echo "🔧 Performing pre-installation setup..."
-    if [ "${UNINSTALL_MODE:-0}" -eq 0 ]; then
-        # Install pip and required packages first
-        echo "Installing prerequisites..."
-        sudo apt-get update
-        sudo apt-get install -y python3-pip gpg
-
-        echo "Setting up Ansible repository..."
-        # Add Ansible repository for Debian
-        if [ ! -f "/etc/apt/sources.list.d/ansible.list" ]; then
-            echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu focal main" | sudo tee /etc/apt/sources.list.d/ansible.list
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
-            sudo apt-get update
-        fi
+    if [ "${UNINSTALL_MODE}" -eq 1 ]; then
+        echo "🔧 Preparing for uninstallation..."
+    else
+        echo "🔧 Performing pre-installation setup..."
+        echo "No additional setup required for this script"
     fi
 }
 
 # Define system packages
 SYSTEM_PACKAGES=(
     "ansible"
+    "ansible-lint"
 )
 
 # Define Python packages for pip installation
-PYTHON_PACKAGES=(
-    "ansible-lint"
-)
+PYTHON_PACKAGES=()
 
 # Define VS Code extensions
 declare -A EXTENSIONS
@@ -52,8 +42,8 @@ EXTENSIONS["redhat.ansible"]="Ansible|Ansible language support and tools"
 
 # Define verification commands to run after installation
 VERIFY_COMMANDS=(
-    "ansible --version | head -n1"
-    "ansible-lint --version 2>/dev/null || echo 'ansible-lint not found'"
+    "command -v ansible >/dev/null && ansible --version | head -n1 || echo '❌ ansible not found'"
+    "command -v ansible-lint >/dev/null && ansible-lint --version || echo '❌ ansible-lint not found'"
     "code --list-extensions | grep -q ms-azuretools.vscode-bicep && echo '✅ Bicep extension is installed' || echo '❌ Bicep extension is not installed'"
     "code --list-extensions | grep -q redhat.ansible && echo '✅ Ansible extension is installed' || echo '❌ Ansible extension is not installed'"
 )
@@ -102,6 +92,15 @@ post_uninstallation_message() {
     echo "2. Any custom Ansible configurations in ~/.ansible remain in place"
     echo "3. See the local guide for additional cleanup steps if needed:"
     echo "   .devcontainer/howto/howto-conf-script.md"
+    
+    # Verify uninstallation
+    if command -v ansible >/dev/null || command -v ansible-lint >/dev/null; then
+        echo
+        echo "⚠️  Warning: Some components may still be installed:"
+        command -v ansible >/dev/null && echo "- ansible is still present"
+        command -v ansible-lint >/dev/null && echo "- ansible-lint is still present"
+        echo "You may need to run with sudo or check package manager settings."
+    fi
 }
 
 

@@ -1,0 +1,101 @@
+vscode ➜ /workspace (main) $ .devcontainer/additions/install-conf-script.sh
+🔄 Starting installation process for: Configuration Tools
+Purpose: Installs tools and extensions for Infrastructure as Code (Bicep) and configuration management (Ansible)
+🔧 Performing pre-installation setup...
+No additional setup required for this script
+[2024-11-01 13:19:25] Installing 2 system packages...
+
+Package                   Status               Version
+----------------------------------------------------
+ansible                   Installed            v7.7.0+dfsg-3+deb12u1
+ansible-lint              Installed            v6.13.1-1
+
+Current Status:
+* ✅ ansible (v7.7.0+dfsg-3+deb12u1)
+* ✅ ansible-lint (v6.13.1-1)
+
+----------------------------------------
+[2024-11-01 13:21:01] Package Installation Summary
+Total packages: 2
+  Installed/Up to date: 2
+  Updated: 0
+  Failed: 0
+[2024-11-01 13:21:02] Installing 2 extensions...
+
+Extension                 Description                         ID                             Status
+----------------------------------------------------------------------------------------------------
+Ansible                   Ansible language support and tools  redhat.ansible                 Installed v24.10.0
+Bicep                     Azure Bicep language support for IaC ms-azuretools.vscode-bicep     Installed v0.30.23
+
+Current Status:
+* ✅ Ansible (v24.10.0)
+* ✅ Bicep (v0.30.23)
+
+----------------------------------------
+[2024-11-01 13:21:22] Extension Status Summary
+Total extensions: 2
+  Already installed: 0
+  Newly installed: 2
+  Failed to install: 0
+
+🔍 Verifying installations...
+Running: command -v ansible >/dev/null && ansible --version | head -n1 || echo '❌ ansible not found'
+ansible [core 2.14.16]
+Running: command -v ansible-lint >/dev/null && ansible-lint --version || echo '❌ ansible-lint not found'
+ansible-lint 6.13.1 using ansible 2.14.16
+Running: code --list-extensions | grep -q ms-azuretools.vscode-bicep && echo '✅ Bicep extension is installed' || echo '❌ Bicep extension is not installed'
+✅ Bicep extension is installed
+Running: code --list-extensions | grep -q redhat.ansible && echo '✅ Ansible extension is installed' || echo '❌ Ansible extension is not installed'
+✅ Ansible extension is installed
+
+🔍 Checking extension state for Ansible...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🔍 Checking extension state for Bicep...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🎉 Installation process complete for: Configuration Tools!
+Purpose: Installs tools and extensions for Infrastructure as Code (Bicep) and configuration management (Ansible)
+
+Important Notes:
+1. Bicep CLI is installed and configured with the extension
+2. Ansible ansible [core 2.14.16]
+3. ansible-lint ansible-lint 6.13.1 using ansible 2.14.16
+
+Documentation Links:
+- Local Guide: .devcontainer/howto/howto-conf-script.md
+- Bicep: https://docs.microsoft.com/azure/azure-resource-manager/bicep
+- Ansible: https://docs.ansible.com
+- VS Code Bicep Extension: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
+- VS Code Ansible Extension: https://marketplace.visualstudio.com/items?itemName=redhat.ansible
+vscode ➜ /workspace (main) $ 

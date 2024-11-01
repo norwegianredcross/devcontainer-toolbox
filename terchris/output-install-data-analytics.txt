@@ -1,0 +1,271 @@
+vscode ➜ /workspace (main) $ .devcontainer/additions/install-data-analytics.sh
+🔄 Starting installation process for: Data & Analytics Tools
+Purpose: Installs Python data analysis libraries, Jupyter notebooks, and related VS Code extensions
+🔧 Performing pre-installation setup...
+Python configuration:
+Python 3.11.10
+pip 24.0 from /usr/local/lib/python3.11/site-packages/pip (python 3.11)
+Upgrading pip to latest version...
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pip in /usr/local/lib/python3.11/site-packages (24.0)
+Collecting pip
+  Downloading pip-24.3.1-py3-none-any.whl.metadata (3.7 kB)
+Downloading pip-24.3.1-py3-none-any.whl (1.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 6.5 MB/s eta 0:00:00
+Installing collected packages: pip
+Successfully installed pip-24.3.1
+
+[notice] A new release of pip is available: 24.0 -> 24.3.1
+[notice] To update, run: pip install --upgrade pip
+[2024-11-01 14:22:45] Installing 10 Python packages...
+
+Package                   Status               Version
+----------------------------------------------------
+pandas                    Installed            v2.2.3
+
+
+Software
+documentation
+2.0,
+numpy                     Up to date           v2.1.2
+3.1,
+matplotlib                Installed            v3.9.2
+seaborn                   Installed            v0.13.2
+scikit-learn              Installed            v1.5.2
+jupyter                   Installed            v1.1.1
+jupyterlab                Updated              v4.3.0
+notebook                  Up to date           v7.2.2
+dbt-core                  Installed            v1.8.8
+dbt-postgres              Installed            v1.8.2
+
+Current Status:
+* ✅ dbt-core (v1.8.8)
+* ✅ dbt-postgres (v1.8.2)
+* ✅ jupyter (v1.1.1)
+* ✅ jupyterlab (v4.3.0)
+* ✅ matplotlib (v3.9.2)
+* ✅ notebook (v7.2.2)
+* ✅ numpy (v2.1.2
+3.1,)
+* ✅ pandas (v2.2.3
+
+
+Software
+documentation
+2.0,)
+* ✅ scikit-learn (v1.5.2)
+* ✅ seaborn (v0.13.2)
+
+----------------------------------------
+[2024-11-01 14:24:12] Package Installation Summary
+Total packages: 10
+  Installed/Up to date: 9
+  Updated: 1
+  Failed: 0
+[2024-11-01 14:24:12] Installing 6 extensions...
+
+Extension                 Description                         ID                             Status
+----------------------------------------------------------------------------------------------------
+DBT                       DBT language support                bastienboutonnet.vscode-dbt    Installed v0.5.1
+Databricks                Databricks integration              databricks.databricks          Installed v2.4.8
+DBT Power User            Enhanced DBT support                innoverio.vscode-dbt-power-user Installed v0.48.3
+Python                    Python language support             ms-python.python               v2024.18.0
+Pylance                   Python language server              ms-python.vscode-pylance       v2024.10.1
+Jupyter                   Jupyter notebook support            ms-toolsai.jupyter             v2024.10.0
+
+Current Status:
+* ✅ DBT (v0.5.1)
+* ✅ DBT Power User (v0.48.3)
+* ✅ Databricks (v2.4.8)
+* ✅ Jupyter (v2024.10.0)
+* ✅ Pylance (v2024.10.1)
+* ✅ Python (v2024.18.0)
+
+----------------------------------------
+[2024-11-01 14:24:58] Extension Status Summary
+Total extensions: 6
+  Already installed: 3
+  Newly installed: 3
+  Failed to install: 0
+
+🔍 Verifying installations...
+Running: python --version || echo '❌ Python not found'
+Python 3.11.10
+Running: pip --version || echo '❌ pip not found'
+pip 24.3.1 from /home/vscode/.local/lib/python3.11/site-packages/pip (python 3.11)
+Running: python -c 'import pandas' 2>/dev/null && echo '✅ pandas is installed' || echo '❌ pandas not found'
+✅ pandas is installed
+Running: python -c 'import numpy' 2>/dev/null && echo '✅ numpy is installed' || echo '❌ numpy not found'
+✅ numpy is installed
+Running: python -c 'import matplotlib' 2>/dev/null && echo '✅ matplotlib is installed' || echo '❌ matplotlib not found'
+✅ matplotlib is installed
+Running: python -c 'import seaborn' 2>/dev/null && echo '✅ seaborn is installed' || echo '❌ seaborn not found'
+✅ seaborn is installed
+Running: python -c 'import sklearn' 2>/dev/null && echo '✅ scikit-learn is installed' || echo '❌ scikit-learn not found'
+✅ scikit-learn is installed
+Running: jupyter --version >/dev/null 2>&1 && echo '✅ jupyter is installed' || echo '❌ jupyter not found'
+✅ jupyter is installed
+Running: dbt --version >/dev/null 2>&1 && echo '✅ dbt is installed' || echo '❌ dbt not found'
+✅ dbt is installed
+
+🔍 Checking extension state for DBT...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🔍 Checking extension state for Databricks...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🔍 Checking extension state for DBT Power User...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🔍 Checking extension state for Python...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🔍 Checking extension state for Pylance...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🔍 Checking extension state for Jupyter...
+Extension state:
+- VS Code Server (devcontainer): unknown (server not found)
+- VS Code Client: installed
+
+⚠️  Action needed:
+To complete the installation, please:
+1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)
+2. Run 'Developer: Reload Window'
+3. If extension still appears after reload, try:
+   - Close all VS Code windows
+   - Kill any running VS Code processes: 'pkill code'
+   - Start VS Code again
+
+If the extension still persists, you may need to manually remove it from:
+- Windows: %USERPROFILE%\.vscode\extensions
+- Mac/Linux: ~/.vscode/extensions
+
+🎉 Installation process complete for: Data & Analytics Tools!
+Purpose: Installs Python data analysis libraries, Jupyter notebooks, and related VS Code extensions
+
+Important Notes:
+1. Python: Python 3.11.10
+2. Jupyter: Selected Jupyter core packages...
+3. DBT: Core:
+4. All data science packages are installed in the Python environment
+5. Jupyter notebooks can be created and run directly in VS Code
+
+Quick Start Commands:
+- Start Jupyter Lab: jupyter lab
+- Start Jupyter Notebook: jupyter notebook
+- Initialize DBT project: dbt init [project_name]
+- Python data analysis example:
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+Documentation Links:
+- Local Guide: .devcontainer/howto/howto-data-analytics.md
+- pandas: https://pandas.pydata.org/docs/
+- scikit-learn: https://scikit-learn.org/stable/
+- Jupyter: https://jupyter.org/documentation
+- DBT: https://docs.getdbt.com/
+
+Installation Status:
+Installed Python Packages:
+dbt-adapters              1.7.0
+dbt-common                1.10.0
+dbt-core                  1.8.8
+dbt-extractor             0.5.1
+dbt-postgres              1.8.2
+dbt-semantic-interfaces   0.5.1
+jupyter                   1.1.1
+jupyter_client            8.6.3
+jupyter-console           6.6.3
+jupyter_core              5.7.2
+jupyter-events            0.10.0
+jupyter-lsp               2.2.5
+jupyter_server            2.14.2
+jupyter_server_terminals  0.5.3
+jupyterlab                4.2.5
+jupyterlab_pygments       0.3.0
+jupyterlab_server         2.27.3
+jupyterlab_widgets        3.0.13
+matplotlib                3.9.2
+matplotlib-inline         0.1.7
+numpy                     2.1.2
+pandas                    2.2.3
+scikit-learn              1.5.2
+seaborn                   0.13.2
+vscode ➜ /workspace (main) $ 
