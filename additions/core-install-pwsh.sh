@@ -1,8 +1,5 @@
 #!/bin/bash
 # file: .devcontainer/additions/core-install-pwsh.sh
-#
-# Core functionality for managing PowerShell modules
-# To be sourced by installation scripts, not executed directly.
 
 set -e
 
@@ -52,8 +49,8 @@ get_module_version() {
 }
 
 # Function to install PowerShell modules
-process_pwsh_modules() {
-    debug "=== Starting PowerShell module installation ==="
+install_modules() {
+    debug "=== Starting module installation ==="
     
     # Get array reference
     declare -n arr=$1
@@ -67,7 +64,7 @@ process_pwsh_modules() {
     local updated=0
     local failed=0
     declare -A successful_ops
-    
+
     # Set PSGallery as trusted
     debug "Setting PSGallery as trusted..."
     pwsh -NoProfile -Command "Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted" >/dev/null 2>&1
@@ -143,8 +140,8 @@ process_pwsh_modules() {
 }
 
 # Function to uninstall PowerShell modules
-process_pwsh_modules_uninstall() {
-    debug "=== Starting PowerShell module uninstallation ==="
+uninstall_modules() {
+    debug "=== Starting module uninstallation ==="
     
     # Get array reference
     declare -n arr=$1
@@ -205,7 +202,11 @@ process_pwsh_modules_uninstall() {
     echo "  Failed: $failed"
 }
 
-# Handle install or uninstall based on mode
-if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
-    process_pwsh_modules=process_pwsh_modules_uninstall
-fi
+# Process PowerShell modules based on mode
+process_modules() {
+    if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
+        uninstall_modules "$1"
+    else
+        install_modules "$1"
+    fi
+}

@@ -1,7 +1,11 @@
 #!/bin/bash
-# file: .devcontainer/additions/install-conf-script.sh
+# file: .devcontainer/additions/_template-install-script.sh
+# 
+# TEMPLATE: Copy this file when creating new installation scripts
+# Rename to: install-[your-name].sh
+# Example: install-dev-python.sh
 #
-# Usage: ./install-conf-script.sh [options]
+# Usage: ./install-[name].sh [options]
 # 
 # Options:
 #   --debug     : Enable debug output for troubleshooting
@@ -12,84 +16,52 @@
 # CONFIGURATION - Modify this section for each new script
 #------------------------------------------------------------------------------
 
-# Script metadata - must be at the very top of the configuration section
-SCRIPT_NAME="Configuration Tools"
-SCRIPT_DESCRIPTION="Installs tools and extensions for Infrastructure as Code (Bicep) and configuration management (Ansible)"
+# Script metadata
+SCRIPT_NAME="[Name]"
+SCRIPT_DESCRIPTION="[Brief description of what this script installs and its purpose]"
 
-# Before running installation, we need to add any required repositories
-pre_installation_setup() {
-    echo "🔧 Performing pre-installation setup..."
-    if [ "${UNINSTALL_MODE:-0}" -eq 0 ]; then
-        # Install pip and required packages first
-        echo "Installing prerequisites..."
-        sudo apt-get update
-        sudo apt-get install -y python3-pip gpg
-
-        echo "Setting up Ansible repository..."
-        # Add Ansible repository for Debian
-        if [ ! -f "/etc/apt/sources.list.d/ansible.list" ]; then
-            echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu focal main" | sudo tee /etc/apt/sources.list.d/ansible.list
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
-            sudo apt-get update
-        fi
-    fi
-}
-
-# Define system packages
+# Define package arrays (remove any empty arrays that aren't needed)
 SYSTEM_PACKAGES=(
-    "ansible"
+    "package1"
+    "package2"
 )
 
-# Define Python packages for pip installation
-PYTHON_PACKAGES=(
-    "ansible-lint"
+NODE_PACKAGES=(
+    "package1"
+    "package2"
+)
+
+PWSH_MODULES=(
+    "module1"
+    "module2"
 )
 
 # Define VS Code extensions
 declare -A EXTENSIONS
-EXTENSIONS["ms-azuretools.vscode-bicep"]="Bicep|Azure Bicep language support for IaC"
-EXTENSIONS["redhat.ansible"]="Ansible|Ansible language support and tools"
+EXTENSIONS["extension1"]="Name|Description"
+EXTENSIONS["extension2"]="Name|Description"
 
 # Define verification commands to run after installation
 VERIFY_COMMANDS=(
-    "ansible --version | head -n1"
-    "ansible-lint --version 2>/dev/null || echo 'ansible-lint not found'"
-    "code --list-extensions | grep -q ms-azuretools.vscode-bicep && echo '✅ Bicep extension is installed' || echo '❌ Bicep extension is not installed'"
-    "code --list-extensions | grep -q redhat.ansible && echo '✅ Ansible extension is installed' || echo '❌ Ansible extension is not installed'"
+    "command1 --version"
+    "command2 --version"
 )
 
 # Post-installation notes
 post_installation_message() {
-    local ansible_version
-    local lint_version
-    
-    if command -v ansible >/dev/null 2>&1; then
-        ansible_version=$(ansible --version | head -n1)
-    else
-        ansible_version="not installed"
-    fi
-
-    if command -v ansible-lint >/dev/null 2>&1; then
-        lint_version=$(ansible-lint --version 2>/dev/null)
-    else
-        lint_version="not installed"
-    fi
-
     echo
     echo "🎉 Installation process complete for: $SCRIPT_NAME!"
     echo "Purpose: $SCRIPT_DESCRIPTION"
     echo
     echo "Important Notes:"
-    echo "1. Bicep CLI is installed and configured with the extension"
-    echo "2. Ansible $ansible_version"
-    echo "3. ansible-lint $lint_version"
+    echo "1. [Important note 1]"
+    echo "2. [Important note 2]"
+    echo "3. [Important note 3]"
     echo
     echo "Documentation Links:"
-    echo "- Local Guide: .devcontainer/howto/howto-conf-script.md"
-    echo "- Bicep: https://docs.microsoft.com/azure/azure-resource-manager/bicep"
-    echo "- Ansible: https://docs.ansible.com"
-    echo "- VS Code Bicep Extension: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep"
-    echo "- VS Code Ansible Extension: https://marketplace.visualstudio.com/items?itemName=redhat.ansible"
+    echo "- Local Guide: .devcontainer/howto/howto-[name].md"
+    echo "- [Link description]: [URL]"
+    echo "- [Link description]: [URL]"
 }
 
 # Post-uninstallation notes
@@ -98,12 +70,11 @@ post_uninstallation_message() {
     echo "🏁 Uninstallation process complete for: $SCRIPT_NAME!"
     echo
     echo "Additional Notes:"
-    echo "1. Configuration files (.bicep, .yaml, etc.) remain unchanged"
-    echo "2. Any custom Ansible configurations in ~/.ansible remain in place"
-    echo "3. See the local guide for additional cleanup steps if needed:"
-    echo "   .devcontainer/howto/howto-conf-script.md"
+    echo "1. [Cleanup note 1]"
+    echo "2. [Cleanup note 2]"
+    echo "3. See the local guide for additional information:"
+    echo "   .devcontainer/howto/howto-[name].md"
 }
-
 
 #------------------------------------------------------------------------------
 # STANDARD SCRIPT LOGIC - Do not modify anything below this line
@@ -190,6 +161,7 @@ if [ "${UNINSTALL_MODE}" -eq 1 ]; then
     echo "Purpose: $SCRIPT_DESCRIPTION"
     process_installations
     if [ ${#EXTENSIONS[@]} -gt 0 ]; then
+        # Add extension state checking for each extension
         for ext_id in "${!EXTENSIONS[@]}"; do
             IFS='|' read -r name description _ <<< "${EXTENSIONS[$ext_id]}"
             check_extension_state "$ext_id" "uninstall" "$name"
@@ -199,10 +171,10 @@ if [ "${UNINSTALL_MODE}" -eq 1 ]; then
 else
     echo "🔄 Starting installation process for: $SCRIPT_NAME"
     echo "Purpose: $SCRIPT_DESCRIPTION"
-    pre_installation_setup
     process_installations
     verify_installations
     if [ ${#EXTENSIONS[@]} -gt 0 ]; then
+        # Add extension state checking for each extension
         for ext_id in "${!EXTENSIONS[@]}"; do
             IFS='|' read -r name description _ <<< "${EXTENSIONS[$ext_id]}"
             check_extension_state "$ext_id" "install" "$name"

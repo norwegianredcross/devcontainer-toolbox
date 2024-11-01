@@ -1,8 +1,5 @@
 #!/bin/bash
 # file: .devcontainer/additions/core-install-python-packages.sh
-#
-# Core functionality for managing Python packages via pip
-# To be sourced by installation scripts, not executed directly.
 
 set -e
 
@@ -37,8 +34,8 @@ get_package_version() {
 }
 
 # Function to install Python packages
-process_python_packages() {
-    debug "=== Starting Python package installation ==="
+install_packages() {
+    debug "=== Starting package installation ==="
     
     # Get array reference
     declare -n arr=$1
@@ -61,7 +58,6 @@ process_python_packages() {
             old_version=$(get_package_version "$package")
             debug "Package '$package' is already installed (v$old_version)"
             
-            # Try to update the package
             if pip install --no-cache-dir -U "$package" >/dev/null 2>&1; then
                 local new_version
                 new_version=$(get_package_version "$package")
@@ -108,8 +104,8 @@ process_python_packages() {
 }
 
 # Function to uninstall Python packages
-process_python_packages_uninstall() {
-    debug "=== Starting Python package uninstallation ==="
+uninstall_packages() {
+    debug "=== Starting package uninstallation ==="
     
     # Get array reference
     declare -n arr=$1
@@ -161,7 +157,11 @@ process_python_packages_uninstall() {
     echo "  Failed: $failed"
 }
 
-# Handle install or uninstall based on mode
-if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
-    process_python_packages=process_python_packages_uninstall
-fi
+# Process Python packages based on mode
+process_packages() {
+    if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
+        uninstall_packages "$1"
+    else
+        install_packages "$1"
+    fi
+}

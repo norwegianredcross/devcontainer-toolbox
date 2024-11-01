@@ -1,8 +1,5 @@
 #!/bin/bash
 # file: .devcontainer/additions/core-install-extensions.sh
-#
-# Core functionality for managing VS Code extensions
-# To be sourced by installation scripts, not executed directly.
 
 set -e
 
@@ -64,79 +61,60 @@ is_extension_installed() {
     "$code_server" --accept-server-license-terms --list-extensions 2>/dev/null | grep -q "^$ext_id$"
 }
 
-# Function to check extension state
-check_extension_state() {
-    local extension_id=$1
-    local action=$2
-    local extension_name=$3
+# Uninstall extension
+uninstall_extension() {
+    local ext_id="$1"
+    local code_server="$2"
+    local uninstall_output
     
-    debug "=== Checking state for extension: $extension_id ==="
-    echo
-    echo "🔍 Checking extension state for $extension_name..."
+    debug "Uninstalling extension: $ext_id"
     
-    # Initialize states
-    local server_state="not installed"
-    local client_state="not installed"
-    
-    # Check in VS Code server (devcontainer)
-    if [ -n "$CODE_SERVER" ]; then
-        if "$CODE_SERVER" --accept-server-license-terms --list-extensions 2>/dev/null | grep -q "^$extension_id$"; then
-            server_state="installed"
-        fi
+    # Capture the uninstall output
+    if [ "${FORCE_MODE:-0}" -eq 1 ]; then
+        uninstall_output=$("$code_server" --accept-server-license-terms --force --uninstall-extension "$ext_id" 2>&1)
     else
-        server_state="unknown (server not found)"
+        uninstall_output=$("$code_server" --accept-server-license-terms --uninstall-extension "$ext_id" 2>&1)
     fi
     
-    # Multiple checks for client-side installation
-    if command -v code >/dev/null 2>&1; then
-        # Check using VS Code CLI
-        if code --list-extensions 2>/dev/null | grep -q "^$extension_id$"; then
-            client_state="installed"
-        else
-            # Check common extension installation locations
-            local extension_paths=(
-                "$HOME/.vscode/extensions/${extension_id}-*"
-                "$HOME/.vscode-server/extensions/${extension_id}-*"
-                "/usr/share/code/resources/app/extensions/${extension_id}-*"
-            )
-            
-            for path in "${extension_paths[@]}"; do
-                if compgen -G "$path" > /dev/null; then
-                    client_state="installed (found in $path)"
-                    break
-                fi
-            done
+    local status=$?
+    if [ $status -ne 0 ]; then
+        debug "Uninstall output: $uninstall_output"
+        # Check if it's a dependency error
+        if [[ $uninstall_output == *"depends on"* ]]; then
+            error "Extension is a dependency of other extensions. Use --force to override."
         fi
-    else
-        client_state="unknown (code command not found)"
     fi
-    
-    echo "Extension state:"
-    echo "- VS Code Server (devcontainer): $server_state"
-    echo "- VS Code Client: $client_state"
-    
-    if [[ "$client_state" == *"installed"* ]]; then
-        echo
-        echo "⚠️  Action needed:"
-        if [ "$action" = "install" ]; then
-            echo "To complete the installation, please:"
-        else
-            echo "To complete the uninstallation, please:"
-        fi
-        echo "1. Open Command Palette (Ctrl+Shift+P or Cmd+Shift+P)"
-        echo "2. Run 'Developer: Reload Window'"
-        echo "3. If extension still appears after reload, try:"
-        echo "   - Close all VS Code windows"
-        echo "   - Kill any running VS Code processes: 'pkill code'"
-        echo "   - Start VS Code again"
-        echo
-        echo "If the extension still persists, you may need to manually remove it from:"
-        echo "- Windows: %USERPROFILE%\\.vscode\\extensions"
-        echo "- Mac/Linux: ~/.vscode/extensions"
-    fi
+    return $status
 }
 
-# Function to install VS Code extensions
+# Install extension with retries
+install_extension() {
+    local ext_id="$1"
+    local code_server="$2"
+    local max_retries=3
+    local retry=0
+    local install_output
+    
+    while [ $retry -lt $max_retries ]; do
+        debug "Installing extension: $ext_id (attempt $((retry + 1))/$max_retries)"
+        install_output=$("$code_server" --accept-server-license-terms --install-extension "$ext_id" 2>&1)
+        
+        if [ $? -eq 0 ]; then
+            debug "Installation successful"
+            return 0
+        else
+            error "Installation attempt $((retry + 1)) failed:"
+            error "$install_output"
+            retry=$((retry + 1))
+            [ $retry -lt $max_retries ] && sleep 2
+        fi
+    done
+    
+    error "Failed to install extension after $max_retries attempts"
+    return 1
+}
+
+# Process extensions
 process_extensions() {
     debug "=== Starting process_extensions ==="
     
@@ -150,7 +128,6 @@ process_extensions() {
     # Find VS Code server
     local CODE_SERVER
     CODE_SERVER=$(find_vscode_server) || return 1
-    export CODE_SERVER
     
     # Print header based on mode
     if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
@@ -167,6 +144,10 @@ process_extensions() {
     printf "%-25s %-35s %-30s %s\n" "Extension" "Description" "ID" "Status"
     printf "%s\n" "----------------------------------------------------------------------------------------------------"
     
+    # Save original IFS
+    local SAVE_IFS=$IFS
+    debug "Original IFS: '$SAVE_IFS'"
+    
     # Track results
     local installed=0
     local uninstalled=0
@@ -182,8 +163,10 @@ process_extensions() {
         debug "ext_id: '$ext_id'"
         debug "Raw value: '${arr[$ext_id]}'"
         
-        # Split name and description
-        IFS='|' read -r name description _ <<< "${arr[$ext_id]}"
+        # Set IFS to | for splitting
+        IFS='|'
+        read -r name description _ <<< "${arr[$ext_id]}"
+        IFS=$SAVE_IFS
         
         debug "After splitting:"
         debug "  name: '$name'"
@@ -195,15 +178,10 @@ process_extensions() {
         if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
             if is_extension_installed "$ext_id" "$CODE_SERVER"; then
                 version=$(get_extension_version "$ext_id" "$CODE_SERVER")
-                if [ "${FORCE_MODE:-0}" -eq 1 ]; then
-                    cmd_options="--force"
-                else
-                    cmd_options=""
-                fi
-                if "$CODE_SERVER" --accept-server-license-terms $cmd_options --uninstall-extension "$ext_id" >/dev/null 2>&1; then
+                if uninstall_extension "$ext_id" "$CODE_SERVER"; then
                     printf "Uninstalled (was v%s)\n" "$version"
                     uninstalled=$((uninstalled + 1))
-                    successful_ops["$name"]=$version
+                    successful_ops["$name"]="$version"
                 else
                     printf "Failed to uninstall v%s\n" "$version"
                     failed=$((failed + 1))
@@ -217,35 +195,35 @@ process_extensions() {
                 version=$(get_extension_version "$ext_id" "$CODE_SERVER")
                 printf "v%s\n" "$version"
                 skipped=$((skipped + 1))
-                successful_ops["$name"]=$version
+                successful_ops["$name"]="$version"
             else
-                if "$CODE_SERVER" --accept-server-license-terms --install-extension "$ext_id" >/dev/null 2>&1; then
+                if install_extension "$ext_id" "$CODE_SERVER"; then
                     version=$(get_extension_version "$ext_id" "$CODE_SERVER")
                     printf "Installed v%s\n" "$version"
                     installed=$((installed + 1))
-                    successful_ops["$name"]=$version
+                    successful_ops["$name"]="$version"
                 else
                     printf "Installation failed\n"
                     failed=$((failed + 1))
                 fi
             fi
         fi
+        
+        debug "=== Finished processing this extension ==="
     done
+    
+    debug "=== All extensions processed ==="
     
     echo
     echo "Current Status:"
-    # Only show successful operations if there are any
-    if [ ${#successful_ops[@]} -gt 0 ]; then
-        while IFS= read -r name; do
-            if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
-                printf "* 🗑️  %s (was v%s)\n" "$name" "${successful_ops[$name]}"
-            else
-                printf "* ✅ %s (v%s)\n" "$name" "${successful_ops[$name]}"
-            fi
-        done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
-    else
-        echo "No operations completed successfully"
-    fi
+    # Sort the successful operations by name and display them
+    while IFS= read -r name; do
+        if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
+            printf "* 🗑️  %s (was v%s)\n" "$name" "${successful_ops[$name]}"
+        else
+            printf "* ✅ %s (v%s)\n" "$name" "${successful_ops[$name]}"
+        fi
+    done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
     
     echo
     echo "----------------------------------------"

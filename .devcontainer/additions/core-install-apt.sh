@@ -1,5 +1,8 @@
 #!/bin/bash
 # file: .devcontainer/additions/core-install-apt.sh
+#
+# Core functionality for managing system packages via apt
+# To be sourced by installation scripts, not executed directly.
 
 set -e
 
@@ -34,7 +37,7 @@ get_package_version() {
 }
 
 # Function to install apt packages
-install_packages() {
+process_system_packages() {
     debug "=== Starting package installation ==="
     
     # Get array reference
@@ -50,13 +53,14 @@ install_packages() {
     local failed=0
     declare -A successful_ops
     
-    # First update package lists
-    if [ "$EUID" -ne 0 ]; then
-        debug "Running apt update with sudo..."
-        sudo apt-get update >/dev/null 2>&1
-    else
-        debug "Running apt update..."
-        apt-get update >/dev/null 2>&1
+    # First update package lists with error handling
+    debug "Running apt update..."
+    local update_output
+    update_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get update 2>&1)
+    if [ $? -ne 0 ]; then
+        error "Failed to update package lists:"
+        error "$update_output"
+        return 1
     fi
     
     for package in "${arr[@]}"; do
@@ -68,31 +72,30 @@ install_packages() {
             debug "Package '$package' is already installed (v$old_version)"
             
             # Try to upgrade the package
-            if [ "$EUID" -ne 0 ]; then
-                sudo apt-get install -y --only-upgrade "$package" >/dev/null 2>&1
+            local upgrade_output
+            upgrade_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --only-upgrade "$package" 2>&1)
+            if [ $? -eq 0 ]; then
+                local new_version
+                new_version=$(get_package_version "$package")
+                if [ "$old_version" != "$new_version" ]; then
+                    printf "%-20s %s\n" "Updated" "v$new_version"
+                    updated=$((updated + 1))
+                else
+                    printf "%-20s %s\n" "Up to date" "v$new_version"
+                    installed=$((installed + 1))
+                fi
+                successful_ops["$package"]=$new_version
             else
-                apt-get install -y --only-upgrade "$package" >/dev/null 2>&1
+                printf "%-20s\n" "Update failed"
+                error "Failed to update $package:"
+                error "$upgrade_output"
+                failed=$((failed + 1))
             fi
-            
-            local new_version
-            new_version=$(get_package_version "$package")
-            if [ "$old_version" != "$new_version" ]; then
-                printf "%-20s %s\n" "Updated" "v$new_version"
-                updated=$((updated + 1))
-            else
-                printf "%-20s %s\n" "Up to date" "v$new_version"
-                installed=$((installed + 1))
-            fi
-            successful_ops["$package"]=$new_version
         else
             debug "Installing package '$package'..."
-            if [ "$EUID" -ne 0 ]; then
-                sudo apt-get install -y "$package" >/dev/null 2>&1
-            else
-                apt-get install -y "$package" >/dev/null 2>&1
-            fi
-            
-            if is_package_installed "$package"; then
+            local install_output
+            install_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$package" 2>&1)
+            if [ $? -eq 0 ] && is_package_installed "$package"; then
                 local version
                 version=$(get_package_version "$package")
                 printf "%-20s %s\n" "Installed" "v$version"
@@ -100,6 +103,8 @@ install_packages() {
                 successful_ops["$package"]=$version
             else
                 printf "%-20s\n" "Installation failed"
+                error "Failed to install $package:"
+                error "$install_output"
                 failed=$((failed + 1))
             fi
         fi
@@ -107,9 +112,13 @@ install_packages() {
     
     echo
     echo "Current Status:"
-    while IFS= read -r package; do
-        printf "* ✅ %s (v%s)\n" "$package" "${successful_ops[$package]}"
-    done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    if [ ${#successful_ops[@]} -gt 0 ]; then
+        while IFS= read -r package; do
+            printf "* ✅ %s (v%s)\n" "$package" "${successful_ops[$package]}"
+        done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    else
+        echo "No packages were successfully installed or updated"
+    fi
     
     echo
     echo "----------------------------------------"
@@ -118,10 +127,13 @@ install_packages() {
     echo "  Installed/Up to date: $installed"
     echo "  Updated: $updated"
     echo "  Failed: $failed"
+    
+    # Return failure if any package failed to install
+    [ $failed -eq 0 ] || return 1
 }
 
 # Function to uninstall apt packages
-uninstall_packages() {
+process_system_packages_uninstall() {
     debug "=== Starting package uninstallation ==="
     
     # Get array reference
@@ -145,18 +157,16 @@ uninstall_packages() {
             version=$(get_package_version "$package")
             debug "Uninstalling package '$package' (v$version)..."
             
-            if [ "$EUID" -ne 0 ]; then
-                sudo apt-get remove -y "$package" >/dev/null 2>&1
-            else
-                apt-get remove -y "$package" >/dev/null 2>&1
-            fi
-            
-            if ! is_package_installed "$package"; then
+            local uninstall_output
+            uninstall_output=$(sudo DEBIAN_FRONTEND=noninteractive apt-get remove -y "$package" 2>&1)
+            if [ $? -eq 0 ] && ! is_package_installed "$package"; then
                 printf "%-20s %s\n" "Uninstalled" "was v$version"
                 uninstalled=$((uninstalled + 1))
                 successful_ops["$package"]=$version
             else
                 printf "%-20s %s\n" "Failed" "v$version"
+                error "Failed to uninstall $package:"
+                error "$uninstall_output"
                 failed=$((failed + 1))
             fi
         else
@@ -167,9 +177,13 @@ uninstall_packages() {
     
     echo
     echo "Current Status:"
-    while IFS= read -r package; do
-        printf "* 🗑️  %s (was v%s)\n" "$package" "${successful_ops[$package]}"
-    done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    if [ ${#successful_ops[@]} -gt 0 ]; then
+        while IFS= read -r package; do
+            printf "* 🗑️  %s (was v%s)\n" "$package" "${successful_ops[$package]}"
+        done < <(printf '%s\n' "${!successful_ops[@]}" | sort)
+    else
+        echo "No packages were successfully uninstalled"
+    fi
     
     echo
     echo "----------------------------------------"
@@ -178,13 +192,12 @@ uninstall_packages() {
     echo "  Successfully uninstalled: $uninstalled"
     echo "  Skipped/Not installed: $skipped"
     echo "  Failed: $failed"
+    
+    # Return failure if any package failed to uninstall
+    [ $failed -eq 0 ] || return 1
 }
 
-# Process apt packages based on mode
-process_packages() {
-    if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
-        uninstall_packages "$1"
-    else
-        install_packages "$1"
-    fi
-}
+# Handle install or uninstall based on mode
+if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
+    process_system_packages=process_system_packages_uninstall
+fi

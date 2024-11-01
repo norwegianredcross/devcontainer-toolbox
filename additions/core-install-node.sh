@@ -1,8 +1,5 @@
 #!/bin/bash
 # file: .devcontainer/additions/core-install-node.sh
-#
-# Core functionality for managing Node.js packages via npm
-# To be sourced by installation scripts, not executed directly.
 
 set -e
 
@@ -37,8 +34,8 @@ get_package_version() {
 }
 
 # Function to install npm packages
-process_node_packages() {
-    debug "=== Starting Node.js package installation ==="
+install_packages() {
+    debug "=== Starting package installation ==="
     
     # Get array reference
     declare -n arr=$1
@@ -122,8 +119,8 @@ process_node_packages() {
 }
 
 # Function to uninstall npm packages
-process_node_packages_uninstall() {
-    debug "=== Starting Node.js package uninstallation ==="
+uninstall_packages() {
+    debug "=== Starting package uninstallation ==="
     
     # Get array reference
     declare -n arr=$1
@@ -186,7 +183,11 @@ process_node_packages_uninstall() {
     echo "  Failed: $failed"
 }
 
-# Handle install or uninstall based on mode
-if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
-    process_node_packages=process_node_packages_uninstall
-fi
+# Process npm packages based on mode
+process_packages() {
+    if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
+        uninstall_packages "$1"
+    else
+        install_packages "$1"
+    fi
+}
