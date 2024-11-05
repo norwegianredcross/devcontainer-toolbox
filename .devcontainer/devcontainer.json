@@ -5,11 +5,26 @@
         "context": "."
     },
 
-    "runArgs": [
-        "--platform=linux/amd64",
-        "--cap-add=NET_ADMIN",
-        "--device=/dev/net/tun:/dev/net/tun"
-    ],
+"runArgs": [
+    // Specify the platform to ensure consistent behavior across different hosts
+    "--platform=linux/amd64",
+
+    // Grant advanced network administration capabilities
+    // Required for creating and modifying network interfaces (like VPN tunnels)
+    "--cap-add=NET_ADMIN",
+
+    // Mount the TUN device from host into container
+    // Essential for VPN tunnel creation and operation
+    "--device=/dev/net/tun:/dev/net/tun",
+
+    // Optional: Grant raw network capability
+    // Useful for some advanced network operations
+    "--cap-add=NET_RAW",
+
+    // Optional: Grant full privileges to container
+    // Use with caution - provides maximum capabilities
+    "--privileged"
+],
 
     "customizations": {
         "vscode": {

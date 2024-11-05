@@ -1,8 +1,6 @@
 #!/bin/bash
 # Path: .devcontainer/vpn/start-vpn.sh
 # Purpose: Start VPN connection using Azure AD auth
-# Author: Your Organization
-# Date: 2024-11-05
 
 set -e  # Exit on any error
 
@@ -54,7 +52,7 @@ log "Starting VPN connection..."
 openvpn \
     --config azure.ovpn \
     --auth-user-pass /tmp/vpn-creds \
-    --verb 4 2>&1 | tee /tmp/vpn.log
+    --verb 6 2>&1 | tee /tmp/vpn.log
 
 # If OpenVPN exits, check the log
 if [ $? -ne 0 ]; then

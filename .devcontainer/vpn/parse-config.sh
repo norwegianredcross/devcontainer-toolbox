@@ -1,8 +1,6 @@
 #!/bin/bash
 # Path: .devcontainer/vpn/parse-config.sh
 # Purpose: Convert Azure XML config to OpenVPN format
-# Author: Your Organization
-# Date: 2024-11-05
 
 set -e  # Exit on any error
 
