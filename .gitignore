@@ -1,1 +1,4 @@
 .DS_Store
+.devcontainer/vpn/azurevpnconfig.xml
+.devcontainer/vpn/azure-ca.crt
+.devcontainer/vpn/azure.ovpn
