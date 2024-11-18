@@ -59,7 +59,7 @@ All the files you have in the repository are now visible inside the devcontainer
 Command shell
 There are several command shells installed and you select the one you prefer by clicking the + sign in the terminal.
 
-![VSCode Dev Container](./img/vscode-devcontainer6.png)
+![VSCode Dev Container](./img/vscode-devcontainer5.png)
 
 Open a bash shell by clicking the + sign in the terminal. You will see that your code on your host is mounted in the /workspaces in the folder in the container. Then type:
 

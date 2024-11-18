@@ -20,7 +20,12 @@ The DevContainer Toolbox provides:
 - Provides a modular approach to adding role-specific development tools
 - Ensures consistent tooling across team members regardless of their operating system
 
-## How to Set It Up
+## What are DevContainers, and why is everyone talking about it?
+
+- [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers)
+- [Youtube: Get Started with Dev Containers in VS Code](https://www.youtube.com/watch?v=b1RavPr_878&t=38s)
+
+## How to set it up
 
 1. Download the repository zip file from: <https://github.com/terchris/devcontainer-toolbox/archive/refs/heads/main.zip>
 2. In your development repository, copy the following folders:
@@ -32,12 +37,13 @@ The DevContainer Toolbox provides:
 
 For detailed setup instructions:
 
+- [Copy the devcontainer-toolbox](.devcontainer/copy-devcontainer-toolbox.md) folder to your repository.
 - Windows users: See [setup-windows.md](.devcontainer/setup/setup-windows.md)
 - Mac/Linux users: See [setup-vscode.md](.devcontainer/setup/setup-mac.md)
 
 - How to use a devcontainer: See [setup-vscode.md](.devcontainer/setup/setup-vscode.md)
 
-## How to Use dev container when developing
+## How to use dev container when developing
 
 | What | Description |
 |-----------|-------------|
