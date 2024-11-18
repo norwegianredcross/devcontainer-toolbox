@@ -51,12 +51,13 @@ SYSTEM_PACKAGES=(
 # Define Node.js packages (for Azure Functions Core Tools)
 NODE_PACKAGES=(
     "azure-functions-core-tools@4"
+    "azurite"
 )
 
 # Define VS Code extensions
 declare -A EXTENSIONS
-EXTENSIONS["ms-dotnettools.csdevkit"]="C# Dev Kit|Complete C# development experience"
 EXTENSIONS["ms-dotnettools.csharp"]="C#|C# language support"
+EXTENSIONS["ms-dotnettools.csdevkit"]="C# Dev Kit|Complete C# development experience"
 EXTENSIONS["ms-dotnettools.vscode-dotnet-runtime"]="NET Runtime|.NET runtime support"
 EXTENSIONS["ms-azuretools.vscode-azurefunctions"]="Azure Functions|Azure Functions development"
 EXTENSIONS["ms-azuretools.azure-dev"]="Azure Developer CLI|Project scaffolding and management"
