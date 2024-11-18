@@ -1,0 +1,374 @@
+{
+    "schemaVersion": "1.0.0",
+    "configGenerated": "2024-11-14T12:35:23Z",
+    "Self": {
+        "ID": "nxHyvLScZA11CNTRL",
+        "HostName": "devcontainer-terje-christensen",
+        "DNSName": "devcontainer-terje-christensen-2.taile269d.ts.net.",
+        "UserID": 1660479842497276,
+        "TailscaleIPs": [
+            "100.77.95.109",
+            "fd7a:115c:a1e0::4101:5f6e"
+        ],
+        "AllowedIPs": [
+            "100.77.95.109/32",
+            "fd7a:115c:a1e0::4101:5f6e/128"
+        ],
+        "Created": "2024-11-14T12:23:03.196158867Z",
+        "CapMap": {
+            "https://tailscale.com/cap/file-sharing": null,
+            "https://tailscale.com/cap/is-admin": null,
+            "https://tailscale.com/cap/ssh": null,
+            "https://tailscale.com/cap/tailnet-lock": null,
+            "probe-udp-lifetime": null,
+            "ssh-behavior-v1": null,
+            "ssh-env-vars": null,
+            "store-appc-routes": null
+        }
+    },
+    "CurrentTailnet": {
+        "Name": "businessmodel.io",
+        "MagicDNSSuffix": "taile269d.ts.net",
+        "MagicDNSEnabled": true
+    },
+    "exitNode": {
+        "ID": "niTCnC2mgA11CNTRL",
+        "Online": true,
+        "TailscaleIPs": [
+            "100.93.44.54",
+            "fd7a:115c:a1e0::df01:2c36"
+        ],
+        "HostName": "devcontainerproxy",
+        "DNSName": "devcontainerproxy.taile269d.ts.net."
+    },
+    "userInfo": {
+        "ID": 1660479842497276,
+        "LoginName": "terje@businessmodel.io",
+        "DisplayName": "Terje Christensen",
+        "ProfilePicURL": "https://lh3.googleusercontent.com/a/ACg8ocKT0ATtYBlsC4jbD0XNilXTCRGq6PmAWBSaZ-VTA-mA6bsMwjQ=s96-c",
+        "Roles": []
+    },
+    "network": {
+        "initial": {
+            "timestamp": "2024-11-14T12:34:56Z",
+            "testDNS": {
+                "host": "8.8.8.8",
+                "reachable": true,
+                "latency": 23.4
+            },
+            "testUrl": {
+                "host": "www.sol.no",
+                "reachable": true,
+                "latency": 45.2
+            },
+            "traceroute": {
+                "destination_ip": "172.64.147.129",
+                "destination_name": "www.sol.no",
+                "hops": [
+                    {
+                        "hop": 1,
+                        "probes": [
+                            {
+                                "ip": "192.168.68.1",
+                                "name": "192.168.68.1",
+                                "rtt": 18.057
+                            },
+                            {
+                                "ip": "192.168.68.1",
+                                "name": "192.168.68.1",
+                                "rtt": 5.803
+                            },
+                            {
+                                "ip": "192.168.68.1",
+                                "name": "192.168.68.1",
+                                "rtt": 3.558
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 2,
+                        "probes": [
+                            {
+                                "ip": "88.91.80.1",
+                                "name": "ti0238a330-gw.ti.telenor.net",
+                                "rtt": 57.725
+                            },
+                            {
+                                "ip": "88.91.80.1",
+                                "name": "ti0238a330-gw.ti.telenor.net",
+                                "rtt": 10.543
+                            },
+                            {
+                                "ip": "88.91.80.1",
+                                "name": "ti0238a330-gw.ti.telenor.net",
+                                "rtt": 5.243
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 3,
+                        "probes": []
+                    },
+                    {
+                        "hop": 4,
+                        "probes": [
+                            {
+                                "ip": "146.172.105.69",
+                                "name": "ti0300b400-ae1-0.ti.telenor.net",
+                                "rtt": 15.876
+                            },
+                            {
+                                "ip": "146.172.105.69",
+                                "name": "ti0300b400-ae1-0.ti.telenor.net",
+                                "rtt": 5.690
+                            },
+                            {
+                                "ip": "146.172.105.69",
+                                "name": "ti0300b400-ae1-0.ti.telenor.net",
+                                "rtt": 11.170
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 5,
+                        "probes": [
+                            {
+                                "ip": "148.122.8.130",
+                                "name": "148.122.8.130",
+                                "rtt": 11.848
+                            },
+                            {
+                                "ip": "148.122.8.130",
+                                "name": "148.122.8.130",
+                                "rtt": 13.332
+                            },
+                            {
+                                "ip": "148.122.8.130",
+                                "name": "148.122.8.130",
+                                "rtt": 7.981
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 6,
+                        "probes": [
+                            {
+                                "ip": "172.64.147.129",
+                                "name": "172.64.147.129",
+                                "rtt": 8.743
+                            },
+                            {
+                                "ip": "172.64.147.129",
+                                "name": "172.64.147.129",
+                                "rtt": 9.626
+                            },
+                            {
+                                "ip": "172.64.147.129",
+                                "name": "172.64.147.129",
+                                "rtt": 8.116
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "tailscale": {
+            "timestamp": "2024-11-14T12:35:23Z",
+            "testDNS": {
+                "host": "8.8.8.8",
+                "reachable": true,
+                "latency": 25.6
+            },
+            "testUrl": {
+                "host": "www.sol.no",
+                "reachable": true,
+                "latency": 251.229
+            },
+            "traceroute": {
+                "destination_ip": "172.64.147.129",
+                "destination_name": "www.sol.no",
+                "hops": [
+                    {
+                        "hop": 1,
+                        "probes": [
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "100.93.44.54",
+                                "name": "devcontainerproxy.taile269d.ts.net",
+                                "rtt": 251.229
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "100.93.44.54",
+                                "name": "devcontainerproxy.taile269d.ts.net",
+                                "rtt": 251.224
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "100.93.44.54",
+                                "name": "devcontainerproxy.taile269d.ts.net",
+                                "rtt": 251.209
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 2,
+                        "probes": [
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "192.168.67.1",
+                                "name": "_gateway",
+                                "rtt": 252.491
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "192.168.67.1",
+                                "name": "_gateway",
+                                "rtt": 252.489
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 3,
+                        "probes": [
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "192.168.68.1",
+                                "name": "_gateway",
+                                "rtt": 254.862
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "192.168.68.1",
+                                "name": "_gateway",
+                                "rtt": 254.865
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "192.168.68.1",
+                                "name": "_gateway",
+                                "rtt": 256.324
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 4,
+                        "probes": [
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "88.91.80.1",
+                                "name": "ti0238a330-gw.ti.telenor.net",
+                                "rtt": 256.356
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "88.91.80.1",
+                                "name": "ti0238a330-gw.ti.telenor.net",
+                                "rtt": 256.321
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "88.91.80.1",
+                                "name": "ti0238a330-gw.ti.telenor.net",
+                                "rtt": 256.291
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 5,
+                        "probes": []
+                    },
+                    {
+                        "hop": 6,
+                        "probes": [
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "146.172.105.69",
+                                "name": "ti0300b400-ae1-0.ti.telenor.net",
+                                "rtt": 257.929
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "146.172.105.69",
+                                "name": "ti0300b400-ae1-0.ti.telenor.net",
+                                "rtt": 286.363
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "146.172.105.69",
+                                "name": "ti0300b400-ae1-0.ti.telenor.net",
+                                "rtt": 286.352
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 7,
+                        "probes": [
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "148.122.8.130",
+                                "name": "148.122.8.130",
+                                "rtt": 293.634
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "148.122.8.130",
+                                "name": "148.122.8.130",
+                                "rtt": 288.808
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "148.122.8.130",
+                                "name": "148.122.8.130",
+                                "rtt": 292.365
+                            }
+                        ]
+                    },
+                    {
+                        "hop": 8,
+                        "probes": [
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "172.64.147.129",
+                                "name": "172.64.147.129",
+                                "rtt": 284.832
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "172.64.147.129",
+                                "name": "172.64.147.129",
+                                "rtt": 284.822
+                            },
+                            {
+                                "annotation": null,
+                                "asn": null,
+                                "ip": "172.64.147.129",
+                                "name": "172.64.147.129",
+                                "rtt": 283.387
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

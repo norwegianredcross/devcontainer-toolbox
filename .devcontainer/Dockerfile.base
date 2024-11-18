@@ -1,0 +1,34 @@
+# file: .devcontainer/Dockerfile.base
+# Description: Base install for all devcontainers
+
+# Use the official Python devcontainer image as the base
+FROM mcr.microsoft.com/devcontainers/python:1-3.11-bookworm
+
+# Set environment variable to avoid interactive prompts during `apt install`
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install additional packages
+# - libcap2-bin: Allows setting file capabilities, helpful for network or permission management tasks.
+# - iputils-ping: Provides the `ping` command, useful for network connectivity testing.
+# - iproute2: Includes networking utilities like `ip` for managing network interfaces and routing.
+# - traceroute: Used to trace the route packets take to a network host, useful for network diagnostics.
+# - jc: Converts command-line tool output to JSON for easier parsing.
+# - xdg-utils: Contains utilities like `xdg-open` to open URLs or files, enabling users to click links in the container.
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libcap2-bin \
+    iputils-ping \
+    iproute2 \
+    traceroute \
+    jc \
+    xdg-utils \
+    && apt-get clean && \
+    # Clean up APT cache and temporary files to reduce image size
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Reset DEBIAN_FRONTEND to default to allow interactive prompts if needed later
+ENV DEBIAN_FRONTEND=
+
+# Specify user as vscode for non-root operations if needed
+USER vscode

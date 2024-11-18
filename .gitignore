@@ -1,2 +1,5 @@
 .DS_Store
 secrets
+
+#if there is a tailscale tunnel in the devcontainer, it will create a tailscale.conf file in the .devcontainer.extend/tailscale folder
+.devcontainer.extend/tailscale

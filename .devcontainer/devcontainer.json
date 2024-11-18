@@ -1,0 +1,62 @@
+{
+    // we are using devcontainers read about it: https://code.visualstudio.com/docs/devcontainers/containers
+    // or watch this video intro: https://www.youtube.com/watch?v=b1RavPr_878&t=38s
+    // NEWER edit this file. It is the same for all projects. Extend in the .devcontainer.extend folder
+    "name": "DevContainer Toolbox",
+    "build": {
+        "dockerfile": "Dockerfile.base"
+    },
+    // and we add these features
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "upgradePackages": true
+        },
+        "ghcr.io/devcontainers/features/azure-cli:1": {},
+        "ghcr.io/devcontainers/features/powershell:1": {}
+    },
+    // these are needed for setting up vpn in the container
+    "runArgs": [
+        "--cap-add=NET_ADMIN",
+        "--cap-add=NET_RAW",
+        "--cap-add=SYS_ADMIN",
+        "--cap-add=AUDIT_WRITE",
+        "--device=/dev/net/tun:/dev/net/tun",
+        "--privileged"
+    ],
+    "customizations": {
+        "vscode": {
+            // by default we set up these extensions
+            "extensions": [
+                "ms-vscode.azure-account",
+                "ms-vscode.azurecli",
+                "ms-vscode.powershell",
+                "yzhang.markdown-all-in-one",
+                "bierner.markdown-mermaid",
+                "redhat.vscode-yaml",
+                "donjayamanne.githistory"
+            ]
+        }
+    },
+    "remoteUser": "vscode",
+    "containerUser": "vscode",
+    "remoteEnv": {
+        "DOCKER_HOST": "/var/run/docker.sock",
+        "DOCKER_HOST_URI": "/var/run/docker.sock",
+        "PODMAN_SOCKET": "/var/run/docker.sock"
+    },
+    "mounts": [
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,consistency=cached"
+    ],
+    // your repo root will always be /workspace
+    "workspaceFolder": "/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+    // we stop the container when you exit vscode
+    "shutdownAction": "stopContainer",
+    "updateRemoteUserUID": true,
+    "init": true,
+    // in this file you add project spessific installs.
+    "postCreateCommand": "if [ -f .devcontainer.extend/project-installs.sh ]; then bash .devcontainer.extend/project-installs.sh; fi"
+}
