@@ -6,6 +6,13 @@ We are using devcontainers. This means that we need a  system that can run conta
 
 ## Rancher Desktop
 
+Before installing Rancher you need to install WSL2 - Windows Subsystem for Linux.
+You need temporary elevated admin rights before you proceed. Search for "Admin on Demand", run the executable, then request a timeframe for your indented use, select your account, submit your request alongside your reason to do so and wait for approval. Once you have obtained your elevated local privileges, open Powershell with elevated admin rights. You have to sign in with your username@redcross.no credentials before your proceed. Paste this command into the powershell window to install WSL2, wait for the installer to finish, restart your machine and finish the installation process for your Ubuntu machine on Windows.
+
+```powershell
+wsl --install
+```
+
 The installation is straight forward and described here: [Rancher Desktop](https://docs.rancherdesktop.io/getting-started/installation/)
 (The installation will automatically instal WSL2 if you dont have it already)
 
