@@ -14,7 +14,7 @@ wsl --install
 ```
 
 The installation is straight forward and described here: [Rancher Desktop](https://docs.rancherdesktop.io/getting-started/installation/)
-(The installation will automatically instal WSL2 if you dont have it already)
+(The installation will automatically instal WSL2 if you don't have it already)
 
 Download the installer and run it. Then start the app on your desktop. You will get this dialog box
 

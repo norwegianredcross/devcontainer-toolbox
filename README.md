@@ -25,7 +25,14 @@ The DevContainer Toolbox provides:
 - [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers)
 - [Youtube: Get Started with Dev Containers in VS Code](https://www.youtube.com/watch?v=b1RavPr_878&t=38s)
 
-## How to set it up
+## Installation requirements
+
+### Prerequisites
+
+- Install Docker preferably via Rancher Desktop instead of Docker Desktop ([Read more about why here.](https://developer.ibm.com/blogs/awb-rancher-desktop-alternative-to-docker-desktop)). The [installation of Rancher Desktop is defined here](.devcontainer/setup/setup-windows.md).
+
+
+### How to set it up in your project
 
 1. Download the repository zip file from: <https://github.com/terchris/devcontainer-toolbox/archive/refs/heads/main.zip>
 2. In your development repository, copy the following folders:
