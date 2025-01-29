@@ -35,13 +35,18 @@ The DevContainer Toolbox provides:
 3. Open your repository in VS Code by running `code .`
 4. When prompted, click "Reopen in Container"
 
+Or
+
+1. git clone https://github.com/terchris/devcontainer-toolbox.git
+2. Make sure you checkout the repo with LF line endings otherwise the shell scripts will return an error.
+
 For detailed setup instructions:
 
-- [Copy the devcontainer-toolbox](.devcontainer/copy-devcontainer-toolbox.md) folder to your repository.
-- Windows users: See [setup-windows.md](.devcontainer/setup/setup-windows.md)
-- Mac/Linux users: See [setup-vscode.md](.devcontainer/setup/setup-mac.md)
+- [Copy the devcontainer-toolbox](copy-devcontainer-toolbox.md) folder to your repository.
+- Windows users: See [setup-windows.md](./setup/setup-windows.md)
+- Mac/Linux users: See [setup-vscode.md](./setup/setup-mac.md)
 
-- How to use a devcontainer: See [setup-vscode.md](.devcontainer/setup/setup-vscode.md)
+- How to use a devcontainer: See [setup-vscode.md](./setup/setup-vscode.md)
 
 ## How to use dev container when developing
 
