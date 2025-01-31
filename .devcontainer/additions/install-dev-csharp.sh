@@ -2,7 +2,7 @@
 # file: .devcontainer/additions/install-dev-csharp.sh
 #
 # Usage: ./install-dev-csharp.sh [options]
-# 
+#
 # Options:
 #   --debug     : Enable debug output for troubleshooting
 #   --uninstall : Remove installed components instead of installing them
@@ -22,18 +22,18 @@ pre_installation_setup() {
         echo "🔧 Preparing for uninstallation..."
     else
         echo "🔧 Performing pre-installation setup..."
-        
+
         # Verify Microsoft repository is configured (from Dockerfile)
         if [ ! -f /etc/apt/sources.list.d/microsoft.list ]; then
             echo "⚠️  Warning: Microsoft repository not found. It should have been configured in the Dockerfile."
             echo "Please verify the container was built correctly."
             exit 1
         fi
-        
+
         # Ensure package lists are up to date
         echo "Updating package lists..."
         sudo apt-get update
-        
+
         # Display current .NET version if installed
         if command -v dotnet >/dev/null 2>&1; then
             echo ".NET SDK version:"
@@ -76,7 +76,7 @@ VERIFY_COMMANDS=(
 post_installation_message() {
     local dotnet_version
     local func_version
-    
+
     if command -v dotnet >/dev/null 2>&1; then
         dotnet_version=$(dotnet --version)
     else
@@ -113,7 +113,7 @@ post_installation_message() {
     echo "- Azure Functions: https://learn.microsoft.com/azure/azure-functions/"
     echo "- C# Dev Kit: https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit"
     echo "- Azure Functions Core Tools: https://github.com/Azure/azure-functions-core-tools"
-    
+
     # Show detailed installation status
     echo
     echo "Installation Status:"
@@ -141,11 +141,11 @@ post_uninstallation_message() {
     echo "3. User settings and configurations remain unchanged"
     echo "4. See the local guide for additional cleanup steps:"
     echo "   .devcontainer/howto/howto-dev-csharp.md"
-    
+
     # Check for remaining components
     echo
     echo "Checking for remaining components..."
-    
+
     if command -v dotnet >/dev/null 2>&1; then
         echo
         echo "⚠️  Warning: .NET SDK is still installed"
@@ -156,13 +156,13 @@ post_uninstallation_message() {
         echo "  rm -rf ~/.dotnet"
         echo "  rm -rf ~/.nuget"
     fi
-    
+
     if command -v func >/dev/null 2>&1; then
         echo
         echo "⚠️  Warning: Azure Functions Core Tools is still installed"
         echo "To remove it, run: npm uninstall -g azure-functions-core-tools"
     fi
-    
+
     # Check for remaining VS Code extensions
     local extensions=(
         "ms-dotnettools.csdevkit"
@@ -171,7 +171,7 @@ post_uninstallation_message() {
         "ms-azuretools.vscode-azurefunctions"
         "ms-azuretools.azure-dev"
     )
-    
+
     local has_extensions=0
     for ext in "${extensions[@]}"; do
         if code --list-extensions | grep -q "$ext"; then
@@ -183,7 +183,7 @@ post_uninstallation_message() {
             echo "- $ext"
         fi
     done
-    
+
     if [ $has_extensions -eq 1 ]; then
         echo "To remove them, run:"
         for ext in "${extensions[@]}"; do
@@ -231,11 +231,12 @@ export UNINSTALL_MODE
 export FORCE_MODE
 
 # Source all core installation scripts
-source "$(dirname "$0")/core-install-apt.sh"
+# source "$(dirname "$0")/core-install-apt.sh"
+# clscnlsdn
 source "$(dirname "$0")/core-install-node.sh"
 source "$(dirname "$0")/core-install-extensions.sh"
-source "$(dirname "$0")/core-install-pwsh.sh"
-source "$(dirname "$0")/core-install-python-packages.sh"
+# source "$(dirname "$0")/core-install-pwsh.sh"
+# source "$(dirname "$0")/core-install-python-packages.sh"
 
 # Function to process installations
 process_installations() {
