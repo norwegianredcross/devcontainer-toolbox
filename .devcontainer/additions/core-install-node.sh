@@ -24,14 +24,14 @@ error() {
 }
 
 # Function to check if a package is installed globally
-is_package_installed() {
+is_npm_package_installed() {
     local package=$1
     debug "Checking if package '$package' is installed..."
     npm list -g "$package" >/dev/null 2>&1
 }
 
 # Function to get installed package version
-get_package_version() {
+get_npm_package_version() {
     local package=$1
     npm list -g "$package" 2>/dev/null | grep "$package" | cut -d'@' -f2
 }
@@ -56,9 +56,9 @@ process_node_packages() {
     for package in "${arr[@]}"; do
         printf "%-35s " "$package"
 
-        if is_package_installed "$package"; then
+        if is_npm_package_installed "$package"; then
             local old_version
-            old_version=$(get_package_version "$package")
+            old_version=$(get_npm_package_version "$package")
             debug "Package '$package' is already installed (v$old_version)"
 
             # Try to update the package
@@ -67,7 +67,7 @@ process_node_packages() {
             fi
 
             local new_version
-            new_version=$(get_package_version "$package")
+            new_version=$(get_npm_package_version "$package")
             if [ "$old_version" != "$new_version" ]; then
                 printf "%-20s %s\n" "Updated" "v$new_version"
                 updated=$((updated + 1))
@@ -81,7 +81,7 @@ process_node_packages() {
             if [ "$EUID" -ne 0 ]; then
                 if npm install -g "$package" >/dev/null 2>&1; then
                     local version
-                    version=$(get_package_version "$package")
+                    version=$(get_npm_package_version "$package")
                     printf "%-20s %s\n" "Installed" "v$version"
                     installed=$((installed + 1))
                     successful_ops["$package"]=$version
@@ -128,9 +128,9 @@ process_node_packages_uninstall() {
     for package in "${arr[@]}"; do
         printf "%-35s " "$package"
 
-        if is_package_installed "$package"; then
+        if is_npm_package_installed "$package"; then
             local version
-            version=$(get_package_version "$package")
+            version=$(get_npm_package_version "$package")
             debug "Uninstalling package '$package' (v$version)..."
 
             if [ "$EUID" -ne 0 ]; then
