@@ -17,20 +17,19 @@ jobs:
         run: |
           zip -r dev_containers.zip .devcontainer .devcontainer.extend
 
+      - name: 🗑️ Delete existing release
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        with:
+          delete_release: true
+          tag_name: latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
       - name: ⬆️ Upload dev_containers.zip as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: dev_containers
           path: dev_containers.zip
-
-      - name: 🗑️ Delete existing release
-        uses: dev-drprasad/delete-tag-and-release@v0.2.1
-        with:
-          delete_release: true
-          delete_tag: true
-          tag_name: latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: 🔖 Create Release
         id: create_release
