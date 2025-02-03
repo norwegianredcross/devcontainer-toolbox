@@ -83,6 +83,20 @@ For more examples and ideas, visit:
 <https://docs.docker.com/get-started/>
 ```
 
+### Fetch the download script
+
+Open the directory where you would like to store the devcontainers repository and
+execute the following command to fetch the download script. Once downloaded run it
+in powershell. The script will download 2 folders into your current working folder,
+.devcontainer and .devcontainer.extend.
+
+```powershell
+wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.ps1 -O update-devcontainer.ps1
+```
+
+Continue with the installation of VSCode. After the installation finishes, navigate
+to this folder and open it with VSCode.
+
 ### Setup VSCode to use the devcontainer
 
 See [setup-vscode.md](./setup-vscode.md)
