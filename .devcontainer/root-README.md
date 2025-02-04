@@ -40,6 +40,22 @@ Or
 1. git clone https://github.com/terchris/devcontainer-toolbox.git
 2. Make sure you checkout the repo with LF line endings otherwise the shell scripts will return an error.
 
+Or
+
+### Fetch the download script
+
+Open the directory where you would like to store the devcontainers repository and
+execute the following command to fetch the download script. Once downloaded run it
+in powershell. The script will download 2 folders into your current working folder,
+.devcontainer and .devcontainer.extend.
+
+```powershell
+wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.ps1 -O update-devcontainer.ps1
+```
+
+Continue with the installation of VSCode. After the installation finishes, navigate
+to this folder and open it with VSCode.
+
 For detailed setup instructions:
 
 - [Copy the devcontainer-toolbox](copy-devcontainer-toolbox.md) folder to your repository.
@@ -50,15 +66,15 @@ For detailed setup instructions:
 
 ## How to use dev container when developing
 
-| What | Description |
-|-----------|-------------|
-| [Azure Functions](.devcontainer/howto/howto-functions-csharp.md) | Developing Azure Functions in C-sharp |
-| Azure Functions | TODO: Developing Azure Functions in Python |
-| Azure Functions | TODO: Developing Azure Functions in TypeScript/Javascript |
-| Azure Logic Apps | TODO: Developing Azure Logic Apps |
-| Azure Container Apps | TODO: Developing Azure Container Apps |
-| PowerShell | TODO: Developing powerShell scripts |
-| bash shell | TODO: Developing bash scripts |
+| What                                                             | Description                                               |
+| ---------------------------------------------------------------- | --------------------------------------------------------- |
+| [Azure Functions](.devcontainer/howto/howto-functions-csharp.md) | Developing Azure Functions in C-sharp                     |
+| Azure Functions                                                  | TODO: Developing Azure Functions in Python                |
+| Azure Functions                                                  | TODO: Developing Azure Functions in TypeScript/Javascript |
+| Azure Logic Apps                                                 | TODO: Developing Azure Logic Apps                         |
+| Azure Container Apps                                             | TODO: Developing Azure Container Apps                     |
+| PowerShell                                                       | TODO: Developing powerShell scripts                       |
+| bash shell                                                       | TODO: Developing bash scripts                             |
 
 ## How to extend the devcontainer
 
@@ -69,7 +85,7 @@ See [readme-devcontainer-extend.md](.devcontainer.extend/readme-devcontainer-ext
 
 This howto uses vscode. But you can use other IDEs.
 
-| Extension | Description |
-|-----------|-------------|
+| Extension                                                           | Description           |
+| ------------------------------------------------------------------- | --------------------- |
 | [JetBrains Rider](.devcontainer/howto/howto-ide-jetbrains-rider.md) | JetBrains Rider setup |
-| [Visual Studio](.devcontainer/howto/howto-ide-visual-studio.md) | Visual Studio setup |
+| [Visual Studio](.devcontainer/howto/howto-ide-visual-studio.md)     | Visual Studio setup   |
