@@ -13,6 +13,11 @@ You need temporary elevated admin rights before you proceed. Search for "Admin o
 wsl --install
 ```
 
+At the end of the installation process you will get a prompt to enter username/password
+credentials for the Ubuntu machine. This is for doing sudo operations on the guest machine.
+Just enter some credentials you will remember like your regular windows login or make
+up a new one.
+
 The installation is straight forward and described here: [Rancher Desktop](https://docs.rancherdesktop.io/getting-started/installation/)
 (The installation will automatically instal WSL2 if you don't have it already)
 
@@ -82,20 +87,6 @@ Share images, automate workflows, and more with a free Docker ID:
 For more examples and ideas, visit:
 <https://docs.docker.com/get-started/>
 ```
-
-### Fetch the download script
-
-Open the directory where you would like to store the devcontainers repository and
-execute the following command to fetch the download script. Once downloaded run it
-in powershell. The script will download 2 folders into your current working folder,
-.devcontainer and .devcontainer.extend.
-
-```powershell
-wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.ps1 -O update-devcontainer.ps1
-```
-
-Continue with the installation of VSCode. After the installation finishes, navigate
-to this folder and open it with VSCode.
 
 ### Setup VSCode to use the devcontainer
 
