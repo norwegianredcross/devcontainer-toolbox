@@ -4,14 +4,41 @@ This document describes how to copy the devcontainer toolbox to your project rep
 
 ## How to use it in your project
 
-1. Download the zip file That contains this repository: <https://github.com/terchris/devcontainer-toolbox/archive/refs/heads/main.zip>
-You will get a file named `devcontainer-toolbox-main.zip` that you unpack to `devcontainer-toolbox-main`
-2. In your development repo (eg development/my-project) copy the folders:
-    - `.devcontainer`
-    - `.devcontainer.extend`
-    - If you dont have a `.vscode/settings.json` file, you can copy the one from the `devcontainer-toolbox-main/.vscode/settings.json`
-3. Start vscode in your development repo by opening a command line/cmd and typing `code .`
-4. vscode will start up and you will get a question "". Here you click on the open in devcontainer.
-5. The first time you start vscode the container will be built and it takes some time, just wait it is a one time job.
+We have several options for downloading the project.
 
-The first time you use the devcontainer you must install the it If you use Windows then you read the [setup-windows.md](./setup-windows.md) file. If you use Mac or Linux then you read the [setup-vscode.md](./setup-vscode.md) file.
+### Method 1 - Manually fetch the zipped project and extract it in your current folder
+
+1. Download the repository zip file from: <https://github.com/norwegianredcross/devcontainer-toolbox/releases/download/latest/dev_containers.zip>
+2. In your development repository, copy the following folders:
+   - `.devcontainer`
+   - `.devcontainer.extend`
+   - `.vscode/settings.json` (if you don't already have one)
+3. Open your repository in VS Code by running `code .`
+4. When prompted, click "Reopen in Container"
+
+### Method 2 - Clone the project repository using git
+
+1. git clone https://github.com/norwegianredcross/devcontainer-toolbox.git
+2. Make sure you checkout the repo with LF line endings otherwise the shell scripts will return an error.
+3. Open your repository in VS Code by running `code .`
+4. When prompted, click "Reopen in Container"
+
+### Method 3 - Fetch and execute a script which will download the project for you
+
+1. Open the directory where you would like to store the devcontainers repository.
+2. Open a terminal window and execute the following command to fetch and execute the download script. The script will download 2 folders into your current working folder, .devcontainer and .devcontainer.extend.
+3. Open your repository in VS Code by running `code .`
+4. When prompted, click "Reopen in Container"
+
+If you are using windows
+```powershell
+wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.ps1 -O update-devcontainer.ps1; .\update-devcontainer.ps1
+```
+
+If you are using Mac/Linux
+```bash
+wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.sh -O update-devcontainer.sh && chmod +x update-devcontainer.sh && ./update-devcontainer.sh
+```
+
+
+The first time you use the devcontainer you must install the it If you use Windows then you read the [setup-windows.md](./setup/setup-windows.md) file. If you use Mac or Linux then you read the [setup-vscode.md](./setup/setup-vscode.md) file.

@@ -27,35 +27,6 @@ The DevContainer Toolbox provides:
 
 ## How to set it up
 
-1. Download the repository zip file from: <https://github.com/terchris/devcontainer-toolbox/archive/refs/heads/main.zip>
-2. In your development repository, copy the following folders:
-   - `.devcontainer`
-   - `.devcontainer.extend`
-   - `.vscode/settings.json` (if you don't already have one)
-3. Open your repository in VS Code by running `code .`
-4. When prompted, click "Reopen in Container"
-
-Or
-
-1. git clone https://github.com/terchris/devcontainer-toolbox.git
-2. Make sure you checkout the repo with LF line endings otherwise the shell scripts will return an error.
-
-Or
-
-### Fetch the download script
-
-Open the directory where you would like to store the devcontainers repository and
-execute the following command to fetch the download script. Once downloaded run it
-in powershell. The script will download 2 folders into your current working folder,
-.devcontainer and .devcontainer.extend.
-
-```powershell
-wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.ps1 -O update-devcontainer.ps1
-```
-
-Continue with the installation of VSCode. After the installation finishes, navigate
-to this folder and open it with VSCode.
-
 For detailed setup instructions:
 
 - [Copy the devcontainer-toolbox](copy-devcontainer-toolbox.md) folder to your repository.

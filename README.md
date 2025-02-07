@@ -34,7 +34,7 @@ The DevContainer Toolbox provides:
 
 ### How to set it up in your project
 
-1. Download the repository zip file from: <https://github.com/terchris/devcontainer-toolbox/archive/refs/heads/main.zip>
+1. Download the repository zip file from: <https://github.com/norwegianredcross/devcontainer-toolbox/releases/download/latest/dev_containers.zip>
 2. In your development repository, copy the following folders:
    - `.devcontainer`
    - `.devcontainer.extend`
@@ -53,15 +53,15 @@ Setting up the devcontainer:
 
 ## How to use dev container when developing
 
-| What | Description |
-|-----------|-------------|
-| [Azure Functions](.devcontainer/howto/howto-functions-csharp.md) | Developing Azure Functions in C-sharp |
-| Azure Functions | TODO: Developing Azure Functions in Python |
-| Azure Functions | TODO: Developing Azure Functions in TypeScript/Javascript |
-| Azure Logic Apps | TODO: Developing Azure Logic Apps |
-| Azure Container Apps | TODO: Developing Azure Container Apps |
-| PowerShell | TODO: Developing powerShell scripts |
-| bash shell | TODO: Developing bash scripts |
+| What                                                             | Description                                               |
+| ---------------------------------------------------------------- | --------------------------------------------------------- |
+| [Azure Functions](.devcontainer/howto/howto-functions-csharp.md) | Developing Azure Functions in C-sharp                     |
+| Azure Functions                                                  | TODO: Developing Azure Functions in Python                |
+| Azure Functions                                                  | TODO: Developing Azure Functions in TypeScript/Javascript |
+| Azure Logic Apps                                                 | TODO: Developing Azure Logic Apps                         |
+| Azure Container Apps                                             | TODO: Developing Azure Container Apps                     |
+| PowerShell                                                       | TODO: Developing powerShell scripts                       |
+| bash shell                                                       | TODO: Developing bash scripts                             |
 
 ## How to extend the devcontainer
 
@@ -72,7 +72,11 @@ See [readme-devcontainer-extend.md](.devcontainer.extend/readme-devcontainer-ext
 
 This howto uses vscode. But you can use other IDEs.
 
-| Extension | Description |
-|-----------|-------------|
+| Extension                                                           | Description           |
+| ------------------------------------------------------------------- | --------------------- |
 | [JetBrains Rider](.devcontainer/howto/howto-ide-jetbrains-rider.md) | JetBrains Rider setup |
-| [Visual Studio](.devcontainer/howto/howto-ide-visual-studio.md) | Visual Studio setup |
+| [Visual Studio](.devcontainer/howto/howto-ide-visual-studio.md)     | Visual Studio setup   |
+
+## Contribute
+
+Follow the [instructions](.devcontainer/git-readme.md) here on how to contribute to the project.
