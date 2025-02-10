@@ -19,14 +19,12 @@ Just enter some credentials you will remember like your regular windows login or
 up a new one.
 
 The installation is straight forward and described here: [Rancher Desktop](https://docs.rancherdesktop.io/getting-started/installation/)
-(The installation will automatically instal WSL2 if you don't have it already)
 
 Download the installer and run it. Then start the app on your desktop. You will get this dialog box
 
 ![Rancher Desktop install](./img/win-rancher-install1.png)
 
-We dont need kubernetes so you can remove the option. You will then be asked to restart the PC.
-Click Yes and your PC restarts (maybe you dont need to restart if you let the kubernetes option on)
+Enable Kubernetes, click OK and restart your PC.
 
 Start Rancher desktop and you wil se an screen like this.
 ![Rancher Desktop Registering WSL distribution](./img/win-rancher-install2.png)
