@@ -4,7 +4,17 @@
     // NEWER edit this file. It is the same for all projects. Extend in the .devcontainer.extend folder
     "name": "DevContainer Toolbox",
     "build": {
-        "dockerfile": "Dockerfile.base"
+        "dockerfile": "Dockerfile.base",
+        "args": {
+            "DEV_MAC_LOGNAME": "${localEnv:LOGNAME}",
+            "DEV_MAC_USER": "${localEnv:USER}",
+            "DEV_WIN_USERDNSDOMAIN": "${localEnv:USERDNSDOMAIN}",
+            "DEV_WIN_USERDOMAIN": "${localEnv:USERDOMAIN}",
+            "DEV_WIN_USERDOMAIN_ROAMINGPROFILE": "${localEnv:USERDOMAIN_ROAMINGPROFILE}",
+            "DEV_WIN_USERNAME": "${localEnv:USERNAME}",
+            "DEV_WIN_COMPUTERNAME": "${localEnv:COMPUTERNAME}",
+            "DEV_WIN_OS": "${localEnv:OS}"
+        }
     },
     // and we add these features
     "features": {

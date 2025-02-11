@@ -10,6 +10,12 @@ set -e
 main() {
     echo "🚀 Starting project-installs setup..."
 
+    # Set container ID and change hostname
+    set_container_id
+
+    # Mark the git folder as safe
+    mark_git_folder_as_safe
+
     # Version checks
     echo "🔍 Verifying installed versions..."
     check_node_version
@@ -68,8 +74,30 @@ check_npm_packages() {
     npm list -g --depth=0
 }
 
+# Set container ID and hostname in the container
+set_container_id() {
+    echo "🏷️ Setting container ID..."
+
+    # Run the script and capture the output
+    NETDATA_CONTAINER_ID=$(.devcontainer/additions/get-hostame.sh)
+
+    # Export it for the current session
+    export NETDATA_CONTAINER_ID
+
+    # Add it to .bashrc for persistence
+    echo "export NETDATA_CONTAINER_ID='${NETDATA_CONTAINER_ID}'" >> ~/.bashrc
+
+    echo "✅ Container ID set to: ${NETDATA_CONTAINER_ID}"
+
+    # change the hostname permanently
+    sudo hostname $NETDATA_CONTAINER_ID
+}
 
 
+mark_git_folder_as_safe() {
+    # this solves the problem that the repo is owned by your host computer - so when the container starts it is not owned by the user the container is running as
+    git config --global --add safe.directory ${containerWorkspaceFolder}
+}
 
 # Run project-specific installations
 install_project_tools() {
@@ -85,5 +113,6 @@ install_project_tools() {
 
     # === END PROJECT-SPECIFIC INSTALLATIONS ===
 }
+
 
 main
