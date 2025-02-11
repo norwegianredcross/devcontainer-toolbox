@@ -96,8 +96,10 @@ set_container_id() {
 
 mark_git_folder_as_safe() {
     # this solves the problem that the repo is owned by your host computer - so when the container starts it is not owned by the user the container is running as
-    git config --global --add safe.directory ${containerWorkspaceFolder}
+    echo "✅ Marked git folder as safe: /workspace"
+    git config --global --add safe.directory /workspace
 }
+
 
 # Run project-specific installations
 install_project_tools() {
