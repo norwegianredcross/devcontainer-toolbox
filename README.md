@@ -34,15 +34,23 @@ The DevContainer Toolbox provides:
 
 ### How to set it up in your project
 
-1. Download the repository zip file from: <https://github.com/norwegianredcross/devcontainer-toolbox/releases/download/latest/dev_containers.zip>
-2. In your development repository, copy the following folders:
-   - `.devcontainer`
-   - `.devcontainer.extend`
-   - `.vscode/settings.json` (if you don't already have one)
+1. Open the directory where you would like to store the devcontainers repository.
+2. Open a terminal window and execute the following command to fetch and execute the download script. The script will download 2 folders into your current working folder, .devcontainer and .devcontainer.extend.
+
+If you are using windows
+```powershell
+wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.ps1 -O update-devcontainer.ps1; .\update-devcontainer.ps1
+```
+
+If you are using Mac/Linux
+```bash
+wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.sh -O update-devcontainer.sh && chmod +x update-devcontainer.sh && ./update-devcontainer.sh
+```
+
 3. Open your repository in VS Code by running `code .`
 4. When prompted, click "Reopen in Container"
 
-( More detailed if you want [Copy the devcontainer-toolbox](.devcontainer/copy-devcontainer-toolbox.md) folder to your repository. )
+(More detailed if you want [Copy the devcontainer-toolbox](.devcontainer/copy-devcontainer-toolbox.md) folder to your repository)
 
 Setting up the devcontainer:
 
