@@ -2,7 +2,7 @@
 
 1. Install git and choose the checkout and commit as LF option otherwise the scripts in the [additions](./additions/) folder will not execute.
 2. Set your global username and email
-   - `git config --global user.email "yourusername@redcross.no"`
+   - `git config --global user.email "yourusername@yourorganization.no"`
    - `git config --global user.name "yourusername"`
 3. Navigate to the [devcontainer-toolbox](https://github.com/norwegianredcross/devcontainer-toolbox) repo and create a new fork.
 4. Clone the fork
