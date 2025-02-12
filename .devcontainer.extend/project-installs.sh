@@ -11,7 +11,13 @@ main() {
     echo "🚀 Starting project-installs setup..."
 
     # Set container ID and change hostname
-    set_container_id
+    # shellcheck source=/dev/null
+    source "$(dirname "$(dirname "$(realpath "$0")")")/.devcontainer/additions/set-hostname.sh"
+    set_container_id || {
+        echo "❌ Failed to set container ID"
+        return 1
+    }
+
 
     # Mark the git folder as safe
     mark_git_folder_as_safe
@@ -74,31 +80,48 @@ check_npm_packages() {
     npm list -g --depth=0
 }
 
-# Set container ID and hostname in the container
-set_container_id() {
-    echo "🏷️ Setting container ID..."
-
-    # Run the script and capture the output
-    NETDATA_CONTAINER_ID=$(.devcontainer/additions/get-hostame.sh)
-
-    # Export it for the current session
-    export NETDATA_CONTAINER_ID
-
-    # Add it to .bashrc for persistence
-    echo "export NETDATA_CONTAINER_ID='${NETDATA_CONTAINER_ID}'" >> ~/.bashrc
-
-    echo "✅ Container ID set to: ${NETDATA_CONTAINER_ID}"
-
-    # change the hostname permanently
-    sudo hostname $NETDATA_CONTAINER_ID
-}
 
 
 mark_git_folder_as_safe() {
-    # this solves the problem that the repo is owned by your host computer - so when the container starts it is not owned by the user the container is running as
-    echo "✅ Marked git folder as safe: /workspace"
+    echo "🔒 Setting up Git repository safety..."
+
+    # Check current ownership
+    local repo_owner=$(stat -c '%u' /workspace/.git)
+    local container_user=$(id -u)
+    echo "👤 Repository ownership:"
+    echo "   Repository owner ID: $repo_owner"
+    echo "   Container user ID: $container_user"
+    ls -l /workspace/.git
+
+    # Mark workspace as safe globally
     git config --global --add safe.directory /workspace
+    git config --global --add safe.directory '*'
+
+    # Additional git configurations for mounted volumes
+    git config --global core.fileMode false  # Ignore file mode changes
+    git config --global core.hideDotFiles false  # Show dotfiles
+
+    # Verify the configuration
+    if git config --global --get-all safe.directory | grep -q "/workspace"; then
+        echo "✅ Git folder marked as safe: /workspace"
+    else
+        echo "❌ Failed to mark Git folder as safe"
+        return 1
+    fi
+
+    # Test Git status to verify it works
+    if git status &>/dev/null; then
+        echo "✅ Git commands working correctly"
+    else
+        echo "❌ Git commands still having issues"
+        return 1
+    fi
+
+    # Show final git config for verification
+    echo "🔧 Current Git configuration:"
+    git config --global --list | grep -E "safe|core"
 }
+
 
 
 # Run project-specific installations
