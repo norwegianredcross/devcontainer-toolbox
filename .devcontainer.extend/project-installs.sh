@@ -123,6 +123,7 @@ mark_git_folder_as_safe() {
 }
 
 
+
 # Run project-specific installations
 install_project_tools() {
     echo "🛠️ Installing project-specific tools..."
