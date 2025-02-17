@@ -24,7 +24,7 @@ pre_installation_setup() {
         echo "🔧 Performing pre-installation setup..."
 
         # Verify Microsoft repository is configured (from Dockerfile)
-        if [ ! -f /etc/apt/sources.list.d/microsoft.list ]; then
+        if [ ! -f /etc/apt/sources.list.d/microsoft-prod.list ]; then
             echo "⚠️  Warning: Microsoft repository not found. It should have been configured in the Dockerfile."
             echo "Please verify the container was built correctly."
             exit 1

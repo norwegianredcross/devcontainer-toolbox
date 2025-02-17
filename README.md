@@ -34,6 +34,11 @@ The DevContainer Toolbox provides:
 
 ### How to set it up in your project
 
+For windows users the recommended approach for developing is to clone the project
+inside your WSL distribution. The described method below works for testing but will
+drastically decrease the overall perfomance of your machine. Read more about how
+to run containers on Windows inside WSL [here](.devcontainer/wsl-readme.md).
+
 1. Open the directory where you would like to store the devcontainers repository.
 2. Open a terminal window and execute the following command to fetch and execute the download script. The script will download 2 folders into your current working folder, .devcontainer and .devcontainer.extend.
 
