@@ -4,7 +4,10 @@
 # Use the official Python devcontainer image as the base
 FROM mcr.microsoft.com/devcontainers/python:1-3.11-bookworm
 
-# Sending env variables from the host to the container so that we know on what machine the container is running
+# Switch to vscode user
+USER vscode
+
+# Sending env variables from the host to the container
 ARG DEV_MAC_LOGNAME
 ARG DEV_MAC_USER
 
@@ -36,20 +39,55 @@ ENV DEBIAN_FRONTEND=noninteractive
 # - jc: Converts command-line tool output to JSON for easier parsing.
 # - xdg-utils: Contains utilities like `xdg-open` to open URLs or files, enabling users to click links in the container.
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libcap2-bin \
-    iputils-ping \
-    iproute2 \
-    traceroute \
-    jc \
-    xdg-utils \
-    && apt-get clean && \
-    # Clean up APT cache and temporary files to reduce image size
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Reset DEBIAN_FRONTEND to default to allow interactive prompts if needed later
+# Install packages - Note that sudo is already configured in the base image for vscode user
+RUN sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends \
+        libcap2-bin \
+        iputils-ping \
+        iproute2 \
+        traceroute \
+        jc \
+        xdg-utils \
+        git \
+        curl \
+        wget \
+        zip \
+        unzip && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install Node.js and configure npm for vscode user
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && \
+    sudo apt-get install -y nodejs && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/* && \
+    # Create the complete directory structure
+    sudo mkdir -p /usr/local/lib/node_modules && \
+    sudo mkdir -p /usr/local/bin && \
+    # Set permissions recursively
+    sudo chown -R vscode:vscode /usr/local/lib/node_modules && \
+    sudo chown -R vscode:vscode /usr/local/bin && \
+    # Ensure npm is properly configured
+    npm config set prefix '/usr/local' && \
+    # Add npm global bin to PATH
+    echo 'export PATH=/usr/local/bin:$PATH' >> ~/.bashrc
+
+# Add the new npm global bin to PATH for the current build
+ENV PATH=/usr/local/bin:$PATH
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Install PowerShell
+RUN cd /tmp && \
+    wget -q https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb && \
+    sudo dpkg -i packages-microsoft-prod.deb && \
+    sudo apt-get update && \
+    sudo apt-get install -y powershell && \
+    sudo rm packages-microsoft-prod.deb && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/*
+
 ENV DEBIAN_FRONTEND=
 
-# Specify user as vscode for non-root operations if needed
-USER vscode
