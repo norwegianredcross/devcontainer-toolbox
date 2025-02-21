@@ -15,6 +15,12 @@ docker images
 
 If you don't get any errors we have access to the docker.socket from inside Linux.
 
+We want to disable the use of swap space in WSL to increase performance. To do so
+open start menu, search for "WSL Settings", navigate to "Swap Size", enter 0
+and close the window.
+
+![disable-swap](./setup/img/wsl-disable-swap.png)
+
 Next we want to change the nameserver so we can reach internet from WSL.
 1. Open a powershell window
 2. Enter wsl
@@ -36,6 +42,11 @@ wsl --shutdown
 
 1. Enter wsl
 2. Try pinging google.com, if it doesn't work retrace the steps
+3. Ensure swap is disabled, it should display 0kb
+
+```bash
+cat /proc/meminfo | grep -ie swap
+```
 
 ## Setting up the projects folder
 
