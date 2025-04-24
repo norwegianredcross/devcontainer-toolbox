@@ -1,0 +1,106 @@
+# file: .devcontainer/Dockerfile.base
+# Description: Base install for all devcontainers
+
+# Use the official Python devcontainer image as the base
+FROM mcr.microsoft.com/devcontainers/python:1-3.11-bookworm
+
+# Switch to vscode user
+USER vscode
+
+# Sending env variables from the host to the container
+ARG DEV_MAC_LOGNAME
+ARG DEV_MAC_USER
+
+ARG DEV_WIN_USERDNSDOMAIN
+ARG DEV_WIN_USERDOMAIN
+ARG DEV_WIN_USERDOMAIN_ROAMINGPROFILE
+ARG DEV_WIN_USERNAME
+ARG DEV_WIN_COMPUTERNAME
+ARG DEV_WIN_OS
+
+ENV DEV_MAC_LOGNAME=$DEV_MAC_LOGNAME
+ENV DEV_MAC_USER=$DEV_MAC_USER
+
+ENV DEV_WIN_USERDNSDOMAIN=$DEV_WIN_USERDNSDOMAIN
+ENV DEV_WIN_USERDOMAIN=$DEV_WIN_USERDOMAIN
+ENV DEV_WIN_USERDOMAIN_ROAMINGPROFILE=$DEV_WIN_USERDOMAIN_ROAMINGPROFILE
+ENV DEV_WIN_USERNAME=$DEV_WIN_USERNAME
+ENV DEV_WIN_COMPUTERNAME=$DEV_WIN_COMPUTERNAME
+ENV DEV_WIN_OS=$DEV_WIN_OS
+
+# Set environment variable to avoid interactive prompts during `apt install`
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install additional packages
+# - libcap2-bin: Allows setting file capabilities, helpful for network or permission management tasks.
+# - iputils-ping: Provides the `ping` command, useful for network connectivity testing.
+# - iproute2: Includes networking utilities like `ip` for managing network interfaces and routing.
+# - traceroute: Used to trace the route packets take to a network host, useful for network diagnostics.
+# - jc: Converts command-line tool output to JSON for easier parsing.
+# - xdg-utils: Contains utilities like `xdg-open` to open URLs or files, enabling users to click links in the container.
+
+# Install packages - Note that sudo is already configured in the base image for vscode user
+RUN sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends \
+        libcap2-bin \
+        iputils-ping \
+        iproute2 \
+        traceroute \
+        jc \
+        xdg-utils \
+        git \
+        curl \
+        wget \
+        zip \
+        unzip && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install Node.js and configure npm for vscode user
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && \
+    sudo apt-get install -y nodejs && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/* && \
+    # Create the complete directory structure
+    sudo mkdir -p /usr/local/lib/node_modules && \
+    sudo mkdir -p /usr/local/bin && \
+    # Set permissions recursively
+    sudo chown -R vscode:vscode /usr/local/lib/node_modules && \
+    sudo chown -R vscode:vscode /usr/local/bin && \
+    # Ensure npm is properly configured
+    npm config set prefix '/usr/local' && \
+    # Add npm global bin to PATH
+    echo 'export PATH=/usr/local/bin:$PATH' >> ~/.bashrc
+
+# Add the new npm global bin to PATH for the current build
+ENV PATH=/usr/local/bin:$PATH
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Install PowerShell - Universal approach for both ARM64 and x86_64
+RUN cd /tmp && \
+    # First try the Microsoft repo method which works for x86_64/amd64
+    wget -q https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb && \
+    sudo dpkg -i packages-microsoft-prod.deb && \
+    sudo apt-get update && \
+    # Try to install powershell package - if it fails, it's likely ARM64
+    if sudo apt-get install -y powershell; then \
+        echo "PowerShell installed via apt"; \
+    else \
+        # Fallback to direct binary installation for ARM64
+        echo "PowerShell apt installation failed, trying binary installation for ARM64" && \
+        ARCH=$(dpkg --print-architecture) && \
+        PWSH_VERSION="7.4.1" && \
+        wget -q "https://github.com/PowerShell/PowerShell/releases/download/v${PWSH_VERSION}/powershell-${PWSH_VERSION}-linux-${ARCH}.tar.gz" && \
+        sudo mkdir -p /opt/microsoft/powershell/7 && \
+        sudo tar zxf "powershell-${PWSH_VERSION}-linux-${ARCH}.tar.gz" -C /opt/microsoft/powershell/7 && \
+        sudo chmod +x /opt/microsoft/powershell/7/pwsh && \
+        sudo ln -sf /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh && \
+        rm "powershell-${PWSH_VERSION}-linux-${ARCH}.tar.gz"; \
+    fi && \
+    sudo rm -f packages-microsoft-prod.deb && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/*
+
+ENV DEBIAN_FRONTEND=

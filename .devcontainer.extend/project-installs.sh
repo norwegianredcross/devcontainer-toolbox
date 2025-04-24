@@ -21,6 +21,9 @@ main() {
 
     # Mark the git folder as safe
     mark_git_folder_as_safe
+    
+    # Configure Git user identity
+    configure_git_identity
 
     # Version checks
     echo "🔍 Verifying installed versions..."
@@ -80,6 +83,93 @@ check_npm_packages() {
     npm list -g --depth=0
 }
 
+# Configure Git user identity from repository or default values
+configure_git_identity() {
+    echo "🔑 Setting up Git identity..."
+
+    # First try to extract Git identity from repository configuration
+    REPO_USER_NAME=""
+    REPO_USER_EMAIL=""
+    
+    # Check if .git/config exists and is readable
+    if [ -f "/workspace/.git/config" ] && [ -r "/workspace/.git/config" ]; then
+        echo "📚 Attempting to read Git identity from repository..."
+        
+        # Try to extract user.name from repository config
+        if grep -q "name = " "/workspace/.git/config"; then
+            REPO_USER_NAME=$(grep "name = " "/workspace/.git/config" | head -n 1 | cut -d= -f2 | tr -d '[:space:]')
+            echo "   Found name in repo: ${REPO_USER_NAME}"
+        fi
+        
+        # Try to extract user.email from repository config
+        if grep -q "email = " "/workspace/.git/config"; then
+            REPO_USER_EMAIL=$(grep "email = " "/workspace/.git/config" | head -n 1 | cut -d= -f2 | tr -d '[:space:]')
+            echo "   Found email in repo: ${REPO_USER_EMAIL}"
+        fi
+    fi
+    
+    # Alternative approach - check repository's commit history
+    if [ -z "$REPO_USER_NAME" ] || [ -z "$REPO_USER_EMAIL" ]; then
+        echo "🔍 Checking repository commit history..."
+        
+        # Check for user info in last commit (if available)
+        if git log -1 --pretty=format:"%an:%ae" > /dev/null 2>&1; then
+            COMMIT_INFO=$(git log -1 --pretty=format:"%an:%ae")
+            COMMIT_NAME=$(echo "$COMMIT_INFO" | cut -d: -f1)
+            COMMIT_EMAIL=$(echo "$COMMIT_INFO" | cut -d: -f2)
+            
+            # Use commit info if available
+            if [ -n "$COMMIT_NAME" ] && [ -z "$REPO_USER_NAME" ]; then
+                REPO_USER_NAME="$COMMIT_NAME"
+                echo "   Found name in commit: ${REPO_USER_NAME}"
+            fi
+            
+            if [ -n "$COMMIT_EMAIL" ] && [ -z "$REPO_USER_EMAIL" ]; then
+                REPO_USER_EMAIL="$COMMIT_EMAIL"
+                echo "   Found email in commit: ${REPO_USER_EMAIL}"
+            fi
+        fi
+    fi
+    
+    # If we found both name and email from repo, use them
+    if [ -n "$REPO_USER_NAME" ] && [ -n "$REPO_USER_EMAIL" ]; then
+        GIT_USER_NAME="$REPO_USER_NAME"
+        GIT_USER_EMAIL="$REPO_USER_EMAIL"
+        echo "✅ Using Git identity from repository"
+    else
+        # Fallback to environment variables as before
+        echo "⚠️ Could not find complete Git identity in repository"
+        echo "   Using default values based on system username"
+        
+        # For Mac users
+        if [ -n "$DEV_MAC_USER" ]; then
+            GIT_USER_NAME="${DEV_MAC_USER}"
+            GIT_USER_EMAIL="${DEV_MAC_USER}@example.com"
+        # For Windows users
+        elif [ -n "$DEV_WIN_USERNAME" ]; then
+            GIT_USER_NAME="${DEV_WIN_USERNAME}"
+            GIT_USER_EMAIL="${DEV_WIN_USERNAME}@example.com"
+        else
+            # Last resort fallback values
+            GIT_USER_NAME="VSCode User"
+            GIT_USER_EMAIL="vscode@container"
+        fi
+    fi
+
+    # Set Git user configuration
+    git config --global user.name "${GIT_USER_NAME}"
+    git config --global user.email "${GIT_USER_EMAIL}"
+    
+    # Verify configuration
+    echo "✅ Git identity configured:"
+    echo "   Name: $(git config --global user.name)"
+    echo "   Email: $(git config --global user.email)"
+    
+    # Remind user to update if needed
+    echo "📝 Note: You can update your Git identity by running:"
+    echo "   git config --global user.name \"Your Name\""
+    echo "   git config --global user.email \"your.email@example.com\""
+}
 
 
 mark_git_folder_as_safe() {
@@ -129,6 +219,7 @@ install_project_tools() {
     echo "🛠️ Installing project-specific tools..."
 
     # === ADD YOUR PROJECT-SPECIFIC INSTALLATIONS BELOW ===
+
 
     # Example: Installing Azure Functions Core Tools
     # npm install -g azure-functions-core-tools@4
