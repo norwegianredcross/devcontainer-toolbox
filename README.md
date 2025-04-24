@@ -31,7 +31,6 @@ The DevContainer Toolbox provides:
 
 - Install Docker preferably via Rancher Desktop instead of Docker Desktop ([Read more about why here.](https://developer.ibm.com/blogs/awb-rancher-desktop-alternative-to-docker-desktop)). The [installation of Rancher Desktop is defined here](.devcontainer/setup/setup-windows.md).
 
-
 ### How to set it up in your project
 
 For windows users the recommended approach for developing is to clone the project
@@ -43,11 +42,13 @@ to run containers on Windows inside WSL [here](.devcontainer/wsl-readme.md).
 2. Open a terminal window and execute the following command to fetch and execute the download script. The script will download 2 folders into your current working folder, .devcontainer and .devcontainer.extend.
 
 If you are using windows
+
 ```powershell
 wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.ps1 -O update-devcontainer.ps1; .\update-devcontainer.ps1
 ```
 
 If you are using Mac/Linux
+
 ```bash
 wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/refs/heads/main/update-devcontainer.sh -O update-devcontainer.sh && chmod +x update-devcontainer.sh && ./update-devcontainer.sh
 ```
@@ -60,7 +61,7 @@ wget https://raw.githubusercontent.com/norwegianredcross/devcontainer-toolbox/re
 Setting up the devcontainer:
 
 - Windows users: See [setup-windows.md](.devcontainer/setup/setup-windows.md)
-- Mac/Linux users: See [setup-vscode.md](.devcontainer/setup/setup-mac.md)
+- Mac/Linux users: See [setup-mac.md](.devcontainer/setup/setup-mac.md)
 
 - How to use a devcontainer: See [setup-vscode.md](.devcontainer/setup/setup-vscode.md)
 
