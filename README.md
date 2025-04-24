@@ -67,15 +67,20 @@ Setting up the devcontainer:
 
 ## How to use dev container when developing
 
-| What                                                             | Description                                               |
-| ---------------------------------------------------------------- | --------------------------------------------------------- |
-| [Azure Functions](.devcontainer/howto/howto-functions-csharp.md) | Developing Azure Functions in C-sharp                     |
-| Azure Functions                                                  | TODO: Developing Azure Functions in Python                |
-| Azure Functions                                                  | TODO: Developing Azure Functions in TypeScript/Javascript |
-| Azure Logic Apps                                                 | TODO: Developing Azure Logic Apps                         |
-| Azure Container Apps                                             | TODO: Developing Azure Container Apps                     |
-| PowerShell                                                       | TODO: Developing powerShell scripts                       |
-| bash shell                                                       | TODO: Developing bash scripts                             |
+### Template library
+
+We have a template library with a growing number of examples on how to use the devcontainer toolbox.
+Here you will find examples on how to write web applications in C#, Python, Go, Java, PHP and TypeScript. And use frameworks like NextJs, React, Spring Boot, Express and more.
+
+Check out the [Urbalurba Dev template library](https://github.com/terchris/urbalurba-dev-templates) for more information.
+
+To selec a template just run the following command in your terminal:
+
+```bash
+.devcontainer/dev/dev-template.sh
+```
+
+This will give you a list of all available templates. Select the one you want to use and it will be downloaded to your current working directory.
 
 ## How to extend the devcontainer
 
