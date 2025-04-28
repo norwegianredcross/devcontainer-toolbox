@@ -1,24 +1,15 @@
 # Setup Mac for devcontainer
 
-TODO: Rewrite for Rancher Desktop
+You can follow the instructions on the [Installing Rancher Desktop on macOS
+page](https://docs.rancherdesktop.io/getting-started/installation/#installing-rancher-desktop-on-macos)
+to install Rancher Desktop
 
-## Install Podman Desktop
+If you want to do it simpler you should install [Rancher Desktop via Homebrew](https://formulae.brew.sh/cask/rancher)
 
-we will make a script that will do this. But it requires testing and it is not working yet.
+```bash
+brew install --cask rancher
+```
 
-Follow the official howto:
+If you have a Mac and dont use Homebrew you should consider installing it. It is a package manager that makes it easy to install and manage software on macOS. You can find more information about Homebrew [here](https://brew.sh/).
 
-[Podman Desktop for Mac](https://podman-desktop.io/docs/installation/mac-install)
-
-The container we are using is emulating x86 so we must use the rosetta emulator to run it.
-<https://podman-desktop.io/docs/podman/rosetta>
-
-The important thing is to set up podman so that vscode think it is using docker.
-
-There is doc about it here: <https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable>
-
-This can also be helpful: <https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper>
-
-I did a lot of trial and error to get it working. But I think that this was the one that got it working <https://podman-desktop.io/docs/migrating-from-docker/emulating-docker-cli-with-podman>
-
-A good article about the different options: <https://medium.com/@guillem.riera/the-most-performant-docker-setup-on-macos-apple-silicon-m1-m2-m3-for-x64-amd64-compatibility-da5100e2557d>
+After you have installed Rancher Desktop start it. Then you can continue on the windows setup page [Test the docker functionality](setup-windows.md#test-the-docker-functionality)
